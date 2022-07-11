@@ -74,6 +74,7 @@ public class CameraController : MonoBehaviour
     {
         currentTracking = sim.bodies[currIndex];
         transform.SetParent(sim.bodies[currIndex].transform);
-        transform.position = new Vector3(transform.parent.position.x, currentTracking.transform.position.y + currentTracking.radius * 10, transform.parent.position.z);
+        float oldHeight = transform.position.y;
+        transform.position = new Vector3(transform.parent.position.x, Mathf.Clamp(transform.position.y, currentTracking.transform.position.y + currentTracking.radius * 10, oldHeight), transform.parent.position.z);
     }
 }

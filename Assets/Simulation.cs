@@ -8,9 +8,12 @@ public class Simulation : MonoBehaviour
     public CelestialBody[] bodies;
     public float timeStep;
 
+    float lastSimulation;
+
     private void Awake()
     {
         bodies = FindObjectsOfType<CelestialBody>();
+        NormalSimulation();
     }
 
     private void FixedUpdate()
@@ -24,5 +27,34 @@ public class Simulation : MonoBehaviour
         {
             bodies[i].UpdatePosition(timeStep);
         }
+    }
+
+    public void ToggleSimulation()
+    {
+        if(timeStep != 0)
+        {
+            lastSimulation = timeStep;
+            timeStep = 0;
+        }
+        else
+        {
+            timeStep = lastSimulation;
+            lastSimulation = 0;
+        }    
+    }
+
+    private void NormalSimulation()
+    {
+        timeStep = 0.01f;
+    }
+
+    public void FastSimulation()
+    {
+        timeStep = 0.5f;
+    }
+
+    public void SlideValueChange(float newValue)
+    {
+        timeStep = newValue;
     }
 }

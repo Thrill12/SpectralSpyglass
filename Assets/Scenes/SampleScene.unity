@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657826, g: 0.49641263, b: 0.57481676, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -1261,7 +1261,7 @@ TrailRenderer:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: 0.41145325
+        value: 0.103759766
         inSlope: 0
         outSlope: 0
         tangentMode: 0
@@ -1347,8 +1347,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   radius: 0.006378
-  mass: 0.0000059736
-  initialVelocity: {x: 0, y: 0, z: 0.29}
+  mass: 0.005972
+  initialVelocity: {x: 0, y: 0, z: 0.3}
   rb: {fileID: 0}
 --- !u!23 &947106624
 MeshRenderer:
@@ -1624,7 +1624,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   radius: 0.6957
   mass: 1989
-  initialVelocity: {x: 0, y: 0, z: 0}
+  initialVelocity: {x: 0, y: 0, z: -0.11}
   rb: {fileID: 0}
 --- !u!23 &1246201236
 MeshRenderer:
@@ -2226,7 +2226,7 @@ TrailRenderer:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: 0.41145325
+        value: 0.103759766
         inSlope: 0
         outSlope: 0
         tangentMode: 0
@@ -2312,8 +2312,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   radius: 0.001738
-  mass: 0.0000000735
-  initialVelocity: {x: 0, y: 0, z: 0.285}
+  mass: 0.00007437
+  initialVelocity: {x: 0, y: 0, z: 0.31}
   rb: {fileID: 0}
 --- !u!23 &2038874186
 MeshRenderer:

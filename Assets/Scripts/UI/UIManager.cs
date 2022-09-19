@@ -8,6 +8,13 @@ public class UIManager : MonoBehaviour
 {
     public CameraController cameraController;
 
+    [Header("Scale Multipliers")]
+
+    public float radiusMultiplier;
+    public float massMultiplier;
+
+    [Space(5)]
+
     [Header("Properties text")]
 
     public Animator propertiesAnimator;
@@ -112,8 +119,8 @@ public class UIManager : MonoBehaviour
 
         CelestialBody observedBody = cameraController.currentTracking;
         bodyName.text = observedBody.bodyName;
-        bodyMass.text = "Mass: " + observedBody.mass.ToString();
-        radius.text = "Radius: " + observedBody.radius.ToString();
+        bodyMass.text = "Mass: " + (observedBody.mass * massMultiplier).ToString() + " kg";
+        radius.text = "Radius: " + (observedBody.radius * radiusMultiplier).ToString() + " km";
         velX.text = "X: " + observedBody.currentVelocity.x.ToString();
         velY.text = "Y: " + observedBody.currentVelocity.y.ToString();
         velZ.text = "Z: " + observedBody.currentVelocity.z.ToString();

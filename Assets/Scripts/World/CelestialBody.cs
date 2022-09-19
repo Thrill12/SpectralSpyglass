@@ -20,8 +20,6 @@ public class CelestialBody : MonoBehaviour
 
     TrailRenderer trail;
 
-    public List<BodyVec> orderedBodies = new List<BodyVec>();
-
     private void Awake()
     {
         trail = GetComponent<TrailRenderer>();
@@ -41,7 +39,7 @@ public class CelestialBody : MonoBehaviour
     // Function to calculate the velocity needed to be applied to the object per physics tick
     public void UpdateVelocity(CelestialBody[] bodies, float timeStep)
     {
-        orderedBodies.Clear();
+        List<BodyVec> orderedBodies = new List<BodyVec>();
         foreach (var item in bodies)
         {
             if (item != this)
@@ -59,17 +57,19 @@ public class CelestialBody : MonoBehaviour
                 Vector3 acceleration = force / mass;
                 currentVelocity += acceleration * timeStep;
 
+                BodyVec vecBody = new BodyVec(item, force);
+
                 // Adding the bodies into a list in order to determine the largest influencer to simplify some equations.
                 // A small planet on the other side of the system will not really affect the sun or a much bigger planet on the other side of the solar system
-                orderedBodies.Add(new BodyVec(item, force));
+                orderedBodies.Add(new BodyVec(item, acceleration));
+                orderedBodies.OrderBy(x => x.magnitude);
             }         
         }
 
         // Currently not ordering the list for some reason - need more research.
         // Current suspicions is that the inspector somehow intervenes and stops it from properly sorting
         // however not sure.
-        orderedBodies.OrderByDescending(x => x.forceVec.sqrMagnitude).ToList();
-        largestInfluencer = orderedBodies[0].body;     
+        largestInfluencer = orderedBodies[0].body;
     }
 
     // Function to move the body to its correct position based on its current position and its velocity

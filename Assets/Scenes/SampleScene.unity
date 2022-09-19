@@ -489,7 +489,6 @@ MonoBehaviour:
   largestInfluencer: {fileID: 0}
   rb: {fileID: 0}
   currentVelocity: {x: 0, y: 0, z: 0}
-  orderedBodies: []
 --- !u!23 &180358038
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1075,6 +1074,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cameraController: {fileID: 1444508045}
+  radiusMultiplier: 1000000
+  massMultiplier: 1e+27
   propertiesAnimator: {fileID: 284419847}
   isPropertiesOut: 0
   bodyName: {fileID: 1333458791}
@@ -1921,7 +1922,6 @@ MonoBehaviour:
   largestInfluencer: {fileID: 0}
   rb: {fileID: 0}
   currentVelocity: {x: 0, y: 0, z: 0}
-  orderedBodies: []
 --- !u!23 &947106624
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -2428,13 +2428,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bodyName: Sun
-  radius: 0.6957
+  radius: 0.69634
   mass: 1989
   initialVelocity: {x: 0, y: 0, z: 0}
   largestInfluencer: {fileID: 0}
   rb: {fileID: 0}
   currentVelocity: {x: 0, y: 0, z: 0}
-  orderedBodies: []
 --- !u!23 &1246201236
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -3414,7 +3413,6 @@ MonoBehaviour:
   largestInfluencer: {fileID: 0}
   rb: {fileID: 0}
   currentVelocity: {x: 0, y: 0, z: 0}
-  orderedBodies: []
 --- !u!23 &1594881789
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -4124,7 +4122,6 @@ MonoBehaviour:
   largestInfluencer: {fileID: 0}
   rb: {fileID: 0}
   currentVelocity: {x: 0, y: 0, z: 0}
-  orderedBodies: []
 --- !u!23 &2038874186
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -4183,7 +4180,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2038874182}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 2.43014, y: 0, z: 0}
+  m_LocalPosition: {x: 2.40707, y: 0, z: 0}
   m_LocalScale: {x: 0.001738, y: 0.001738, z: 0.001738}
   m_ConstrainProportionsScale: 0
   m_Children:

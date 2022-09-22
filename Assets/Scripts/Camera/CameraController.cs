@@ -5,7 +5,7 @@ using UnityEngine;
 public class CameraController : MonoBehaviour
 {
     Simulation sim;
-    [HideInInspector] public CelestialBody currentTracking;
+    [HideInInspector] public BaseBody currentTracking;
     public Camera cam;
 
     [HideInInspector] public GameObject rotateTarget;
@@ -122,7 +122,7 @@ public class CameraController : MonoBehaviour
 
         // This sets the position of the camera using the celestial body's radius so that the camera doesn't spawn inside an object when switching to its view.
         transform.position = new Vector3(transform.parent.position.x, transform.parent.position.y, transform.parent.position.z);
-        cam.gameObject.transform.position = new Vector3(transform.position.x, Mathf.Clamp(transform.position.y, transform.position.y + currentTracking.radius * 10, oldHeight), transform.position.z);  
+        cam.gameObject.transform.position = new Vector3(transform.position.x, Mathf.Clamp(transform.position.y, transform.position.y + (currentTracking.transform.localScale.x) * 10, oldHeight), transform.position.z);  
         transform.LookAt(rotateTarget.transform.position);
     }
 }

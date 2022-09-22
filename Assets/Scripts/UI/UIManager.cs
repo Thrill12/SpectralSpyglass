@@ -112,15 +112,27 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    // Need to replace this with a function to decide which elements to spawn in the properties window based on which type of body
+    // the object is
+
     // Here we are displaying all the properties in the window.
     public void DisplayProperties()
     {
         if (cameraController.currentTracking == null) return;
 
-        CelestialBody observedBody = cameraController.currentTracking;
+        BaseBody observedBody = cameraController.currentTracking;
         bodyName.text = observedBody.bodyName;
         bodyMass.text = "Mass: " + (observedBody.mass * massMultiplier).ToString() + " kg";
-        radius.text = "Radius: " + (observedBody.radius * radiusMultiplier).ToString() + " km";
+
+        if(observedBody as CelestialBody)
+        {
+            CelestialBody celes = (CelestialBody)observedBody;
+            radius.text = "Radius: " + (celes.radius * radiusMultiplier).ToString() + " km";
+        }
+        else
+        {
+            radius.text = "";
+        }
         velX.text = "X: " + observedBody.currentVelocity.x.ToString();
         velY.text = "Y: " + observedBody.currentVelocity.y.ToString();
         velZ.text = "Z: " + observedBody.currentVelocity.z.ToString();
@@ -134,6 +146,11 @@ public class UIManager : MonoBehaviour
         {
             item.gameObject.GetComponent<TrailRenderer>().enabled = !item.gameObject.GetComponent<TrailRenderer>().enabled;
         }
+    }
+
+    public void CreateConic()
+    {
+        sim.CreateConic(ref cameraController.currentTracking);
     }
     #endregion
 }

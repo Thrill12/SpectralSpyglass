@@ -17,6 +17,8 @@ public class BaseBody : MonoBehaviour
     [HideInInspector] public Vector3 currentVelocity;
     public TrailRenderer trail;
 
+    public bool fake = false;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -44,7 +46,7 @@ public class BaseBody : MonoBehaviour
         List<BodyVec> orderedBodies = new List<BodyVec>();
         foreach (var item in bodies)
         {
-            if (item != this)
+            if (item != this && !item.fake)
             {
                 // Newton's Gravitational Formula
                 // F = G((m1*m2)/r^2)

@@ -64,8 +64,8 @@ public class CameraController : MonoBehaviour
     {
         if (Input.GetMouseButton(0))
         {
-            transform.RotateAround(rotateTarget.transform.position, cam.transform.up, -Input.GetAxis("Mouse X") * moveSens * Time.smoothDeltaTime);
-            transform.RotateAround(rotateTarget.transform.position, cam.transform.right, Input.GetAxis("Mouse Y") * moveSens * Time.smoothDeltaTime);
+            transform.RotateAround(rotateTarget.transform.position, cam.transform.up, Input.GetAxis("Mouse X") * moveSens * Time.smoothDeltaTime);
+            transform.RotateAround(rotateTarget.transform.position, cam.transform.right, -Input.GetAxis("Mouse Y") * moveSens * Time.smoothDeltaTime);
         }
     }
 

@@ -9,6 +9,8 @@ public class Simulation : MonoBehaviour
     [HideInInspector]
     public BaseBody[] bodies;
     public float timeStep;
+    public int conicLookahead;
+    public bool relativeToBody;
 
     float lastSimulation;
 
@@ -18,8 +20,9 @@ public class Simulation : MonoBehaviour
         NormalSimulation();
     }
 
-    public void CreateConic(ref BaseBody body)
+    public void CreateConic(BaseBody body)
     {
+        #region Old Way
         //List<Vector3> conicPoints = new List<Vector3>();
 
         //Vector3 lastPos = body.transform.position;
@@ -49,6 +52,41 @@ public class Simulation : MonoBehaviour
         //    copy.UpdateVelocity(bodiesCopy.ToArray(), 0.1f);
         //    copy.UpdatePosition(0.1f);
         //}
+
+        //BaseBody mirrorBody = GameObject.CreatePrimitive(PrimitiveType.Sphere).AddComponent<BaseBody>();
+        //mirrorBody.transform.position = body.transform.position;
+
+        //mirrorBody.gameObject.AddComponent<Rigidbody>();
+        //mirrorBody.gameObject.AddComponent<TrailRenderer>();
+        //mirrorBody.GetComponent<MeshRenderer>().enabled = false;
+
+        //mirrorBody.trail = mirrorBody.GetComponent<TrailRenderer>();
+        //mirrorBody.rb = mirrorBody.GetComponent<Rigidbody>();
+
+        //mirrorBody.trail.material = conicMaterial;
+        //mirrorBody.trail.time = body.trail.time;
+        //mirrorBody.trail.startWidth = body.transform.localScale.x / 2;
+        //mirrorBody.trail.endWidth = 0;
+        //mirrorBody.fake = true;
+
+        //for (float i = 0; i < 10; i += 0.001f)
+        //{
+        //    mirrorBody.GetComponent<TrailRenderer>().material = conicMaterial;
+        //    mirrorBody.UpdateVelocity(bodies, 1f);
+        //    mirrorBody.UpdatePosition(1f);
+        //}
+        #endregion
+
+        //https://github.com/SebLague/Solar-System/blob/Episode_01/Assets/Scripts/Debug/OrbitDebugDisplay.cs
+
+        VirtualBody[] vBodies = new VirtualBody[bodies.Length];
+        Vector3[][] futurePoints = new Vector3[bodies.Length][];
+
+        // Counter to keep track of which body we are currently calculating/adding to
+        // our equations
+        int refIndex = 0;
+
+
     }
 
     // Unity function which runs at around 60 times per second in time with the physics update

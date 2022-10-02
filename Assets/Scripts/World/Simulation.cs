@@ -5,22 +5,39 @@ using UnityEngine;
 
 public class Simulation : MonoBehaviour
 {
+    [HideInInspector] public float gravConstant = 0.0001f;
     public Material conicMaterial;
     [HideInInspector]
     public BaseBody[] bodies;
     public float timeStep;
     public int conicLookahead;
-    public bool relativeToBody;
+    public bool conicRelative;
 
     float lastSimulation;
+    CameraController cam;
+
+    bool areConicsDrawn = false;
 
     private void Awake()
     {
+        cam = FindObjectOfType<CameraController>();
         bodies = FindObjectsOfType<BaseBody>();
         NormalSimulation();
     }
 
-    public void CreateConic(BaseBody body)
+    public void ToggleConics()
+    {
+        if(areConicsDrawn == false)
+        {
+            CreateConic();
+        }
+        else
+        {
+            HideOrbits();
+        }
+    }
+
+    public void CreateConic()
     {
         #region Old Way
         //List<Vector3> conicPoints = new List<Vector3>();
@@ -82,11 +99,106 @@ public class Simulation : MonoBehaviour
         VirtualBody[] vBodies = new VirtualBody[bodies.Length];
         Vector3[][] futurePoints = new Vector3[bodies.Length][];
 
-        // Counter to keep track of which body we are currently calculating/adding to
-        // our equations
-        int refIndex = 0;
+        int refFrameIndex = 0;
+        Vector3 referenceBodyInitialPosition = Vector3.zero;
 
+        Debug.Log(vBodies.Length);
 
+        // Taking inspiration from Sebastian Lague's implementation,
+        // However will be adapted to take into account SOIs of the planets
+
+        // This for loop creates an array of "fake" bodies, which are simulated.
+        // What differes these from the original bodies is that these are not rendered,
+        // only their trails are displayed so that the user can see their trajectories
+        for (int i = 0; i < vBodies.Length; i++)
+        {
+            vBodies[i] = new VirtualBody(bodies[i]);
+            futurePoints[i] = new Vector3[conicLookahead];
+
+            if (bodies[i] == centralBody && conicRelative)
+            {
+                
+            }
+        }
+
+        // For loop that will calculate the position of bodies for x number of steps
+        // This basically runs a second simulation, although not rendering it yet
+        for (int i = 0; i < conicLookahead; i++)
+        {
+            Vector3 refBodyPosition = Vector3.zero;
+            if (conicRelative)
+            {
+                refBodyPosition = vBodies[refFrameIndex].position;    
+            }
+
+            // This loop updates the velocities of all the virtual bodies
+            for (int j = 0; j < vBodies.Length; j++)
+            {
+                vBodies[j].velocity += CalculateConicAcceleration(j, vBodies) * timeStep;
+            }
+
+            for (int j = 0; j < vBodies.Length; j++)
+            {
+                Vector3 newBodyPos = vBodies[j].position + vBodies[j].position * timeStep;
+                vBodies[j].position = newBodyPos;
+                futurePoints[j][i] = newBodyPos;
+            }   
+        }
+
+        // In this loop, we are actually rendering the points we saved from each virtual
+        // simulated body.
+
+        for (int bodyIndex = 0; bodyIndex < vBodies.Length; bodyIndex++)
+        {
+            // This loop actually draws a line based on the points that we saved earlier.
+            for (int i = 0; i < futurePoints[bodyIndex].Length; i++)
+            {
+                LineRenderer line = bodies[bodyIndex].gameObject.GetComponent<LineRenderer>();
+                line.enabled = true;
+                line.positionCount = futurePoints[bodyIndex].Length;
+                line.SetPositions(futurePoints[bodyIndex]);
+                line.startColor = Color.yellow;
+                line.endColor = Color.yellow;
+                line.widthMultiplier = bodies[bodyIndex].transform.localScale.x / 2;
+
+                Debug.Log(line.positionCount + " pos " + line.enabled);
+            }
+        }
+        
+
+        areConicsDrawn = true;
+    }
+
+    // This delets the line data for the currente orbit in order to be able to toggle
+    // the display.
+    public void HideOrbits()
+    {
+        BaseBody[] bodies = FindObjectsOfType<BaseBody>();
+
+        for (int i = 0; i < bodies.Length; i++)
+        {
+            var line = bodies[i].GetComponent<LineRenderer>();
+            line.positionCount = 0;
+
+            line.enabled = false;
+        }
+
+        areConicsDrawn = false;
+    }
+
+    // Function to calculate the acceleration of a single body
+    Vector3 CalculateConicAcceleration(int j, VirtualBody[] vBodies)
+    {
+        Vector3 acceleration = Vector3.zero;
+        for (int i = 0; i < vBodies.Length; i++)
+        {
+            if (i == j) continue;
+
+            Vector3 fDir = (vBodies[i].position - vBodies[j].position).normalized;
+            float sqrDst = (vBodies[j].position - vBodies[i].position).sqrMagnitude;
+            acceleration += fDir * gravConstant * vBodies[j].mass / sqrDst;
+        }
+        return acceleration;
     }
 
     // Unity function which runs at around 60 times per second in time with the physics update

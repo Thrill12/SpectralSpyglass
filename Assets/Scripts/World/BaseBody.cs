@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-[RequireComponent(typeof(Rigidbody), typeof(TrailRenderer))]
+[RequireComponent(typeof(Rigidbody), typeof(TrailRenderer), typeof(LineRenderer))]
 public class BaseBody : MonoBehaviour
 {
+    public Simulation sim;
     public float mass;
     public string bodyName;
-    [HideInInspector] public const float gravConstant = 0.0001f;
+    
     public BaseBody largestInfluencer;
 
     // Unity component which contains functions to set and get the position of an object
@@ -22,6 +23,7 @@ public class BaseBody : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        sim = GameObject.FindObjectOfType<Simulation>();
         rb = GetComponent<Rigidbody>();
         trail = GetComponent<TrailRenderer>();
 
@@ -57,7 +59,7 @@ public class BaseBody : MonoBehaviour
                 // r = sqrDst
                 float sqrDst = (item.rb.position - rb.position).sqrMagnitude;
                 Vector3 forceDir = (item.rb.position - rb.position).normalized;
-                Vector3 force = forceDir * gravConstant * mass * item.mass / sqrDst;
+                Vector3 force = forceDir * sim.gravConstant * mass * item.mass / sqrDst;
                 Vector3 acceleration = force / mass;
                 currentVelocity += acceleration * timeStep;
 

@@ -150,7 +150,7 @@ public class UIManager : MonoBehaviour
 
     public void CreateConic()
     {
-        sim.CreateConic(cameraController.currentTracking);
+        sim.ToggleConics();
     }
     #endregion
 }

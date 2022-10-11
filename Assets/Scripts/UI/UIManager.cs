@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Reflection;
 
 public class UIManager : MonoBehaviour
 {
@@ -31,12 +32,12 @@ public class UIManager : MonoBehaviour
     public TMP_InputField velZ;
     public TMP_Text largestInfluencer;
 
-    string oldName;
-    string oldMass;
-    string oldRadius;
-    string oldVelx;
-    string oldVely;
-    string oldVelz;
+    //string oldName;
+    //string oldMass;
+    //string oldRadius;
+    //string oldVelx;
+    //string oldVely;
+    //string oldVelz;
 
     #region Slider
 
@@ -63,6 +64,8 @@ public class UIManager : MonoBehaviour
 
         // Setting the default value of the slider.
         simSpeedSlider.value = sim.timeStep;
+
+        AddButtonListeners();
     }
 
     private void Update()
@@ -80,12 +83,76 @@ public class UIManager : MonoBehaviour
         {
             isPaused = true;
             startPauseButton.sprite = playingButton;          
+        }   
+    }
+
+    private void AddButtonListeners()
+    {
+        bodyMass.onEndEdit.AddListener(fieldValue =>
+        {
+            if (Input.GetButton("Submit"))
+            {
+                Debug.Log(fieldValue);
+                ValidateEntryFloat(fieldValue, "mass");
+            }
+        });
+
+        radius.onEndEdit.AddListener(fieldValue =>
+        {
+            if (Input.GetButton("Submit"))
+            {
+                ValidateEntryFloat(fieldValue, "radius");
+            }
+        });
+
+        bodyName.onEndEdit.AddListener(fieldValue =>
+        {
+            if (Input.GetButton("Submit"))
+            {
+                ValidateEntryString(fieldValue, "bodyName");
+            }
+        });
+    }
+
+    private bool IsValidFloat(object input)
+    {
+        float testValue;
+
+        if(float.TryParse((string)input, out testValue))
+        {
+            return true;
+        }
+        return false;
+    }
+
+    public void ValidateEntryFloat(object value, string fieldName)
+    {
+        if (!IsValidFloat(value))
+        {
+            return;
         }
 
-        if (isDirty())
+        float newValue = (float.Parse((string)value));
+
+        if(fieldName == "mass")
         {
-            SetProperties();
+            newValue /= massMultiplier;
         }
+        else if(fieldName == "radius")
+        {
+            newValue /= radiusMultiplier;
+        }
+
+        Debug.Log("Existing value is " + observedBody.GetType().GetField(fieldName).GetValue(observedBody));
+        Debug.Log("Intended value is " + newValue);
+        observedBody.GetType().GetField(fieldName).SetValue(observedBody, newValue);
+    }
+
+    public void ValidateEntryString(string value, string fieldName)
+    {
+        value.Trim();
+
+        observedBody.GetType().GetField(fieldName).SetValue(observedBody, value);
     }
 
     // Code for managing the speed slider of the simulation.
@@ -127,9 +194,6 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    // Need to replace this with a function to decide which elements to spawn in the properties window based on which type of body
-    // the object is
-
     // Here we are displaying all the properties in the window.
     public void DisplayProperties()
     {
@@ -155,60 +219,60 @@ public class UIManager : MonoBehaviour
         largestInfluencer.text = "Largest influencer: " + observedBody.largestInfluencer.bodyName;
     }
 
-    public bool isDirty()
-    {
-        if(bodyName.text != oldName)
-        {
-            oldName = bodyName.text;
-            return true;
-        }
+    //public bool isDirty()
+    //{
+    //    if(bodyName.text != oldName)
+    //    {
+    //        oldName = bodyName.text;
+    //        return true;
+    //    }
 
-        if(bodyMass.text != oldMass)
-        {
-            oldMass = bodyMass.text;
-            return true;
-        }
+    //    if(bodyMass.text != oldMass)
+    //    {
+    //        oldMass = bodyMass.text;
+    //        return true;
+    //    }
 
-        if (radius.text != oldRadius)
-        {
-            oldRadius = radius.text;
-            return true;
-        }
+    //    if (radius.text != oldRadius)
+    //    {
+    //        oldRadius = radius.text;
+    //        return true;
+    //    }
 
-        if(velX.text != oldVelx)
-        {
-            oldVelx = velX.text;
-            return true;
-        }
+    //    if(velX.text != oldVelx)
+    //    {
+    //        oldVelx = velX.text;
+    //        return true;
+    //    }
 
-        if (velY.text != oldVely)
-        {
-            oldVely = velY.text;
-            return true;
-        }
+    //    if (velY.text != oldVely)
+    //    {
+    //        oldVely = velY.text;
+    //        return true;
+    //    }
 
-        if (velZ.text != oldVelz)
-        {
-            oldVelz = velZ.text;
-            return true;
-        }
+    //    if (velZ.text != oldVelz)
+    //    {
+    //        oldVelz = velZ.text;
+    //        return true;
+    //    }
 
-        return false;
-    }
+    //    return false;
+    //}
 
-    public void SetProperties()
-    {
-        observedBody.bodyName = bodyName.text;
-        observedBody.mass = (float)Convert.ToDouble(bodyMass.text) / massMultiplier;
+    //public void SetProperties()
+    //{
+    //    observedBody.bodyName = bodyName.text;
+    //    observedBody.mass = (float)Convert.ToDouble(bodyMass.text) / massMultiplier;
         
-        if(observedBody as CelestialBody)
-        {
-            CelestialBody c = (CelestialBody)observedBody;
-            c.radius = (float)Convert.ToDouble(radius.text) / radiusMultiplier;
-        }
+    //    if(observedBody as CelestialBody)
+    //    {
+    //        CelestialBody c = (CelestialBody)observedBody;
+    //        c.radius = (float)Convert.ToDouble(radius.text) / radiusMultiplier;
+    //    }
 
-        observedBody.AddVelocity( new Vector3((float)Convert.ToDouble(velX.text), (float)Convert.ToDouble(velY), (float)Convert.ToDouble(velZ)));
-    }
+    //    observedBody.AddVelocity( new Vector3((float)Convert.ToDouble(velX.text), (float)Convert.ToDouble(velY), (float)Convert.ToDouble(velZ)));
+    //}
 
     // Region for the different toggles we will have in the tool.
     #region Toggles

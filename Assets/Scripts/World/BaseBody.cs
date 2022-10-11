@@ -20,7 +20,7 @@ public class BaseBody : MonoBehaviour
 
     public bool fake = false;
 
-    private Vector3 addedVelocity = new Vector3(0,0,0);
+    [HideInInspector] public Vector3 addedVelocity;
 
     // Start is called before the first frame update
     void Start()

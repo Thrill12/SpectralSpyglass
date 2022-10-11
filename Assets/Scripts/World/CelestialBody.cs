@@ -5,7 +5,7 @@ using UnityEngine;
 
 
 public class CelestialBody : BaseBody
-{   
+{
     public float radius;
     public Vector3 initialVelocity;  
     

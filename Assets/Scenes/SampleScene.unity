@@ -949,7 +949,7 @@ TrailRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Time: 75
+  m_Time: 10
   m_Parameters:
     serializedVersion: 3
     widthMultiplier: 0.1
@@ -1006,13 +1006,13 @@ TrailRenderer:
       m_Mode: 0
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
-    numCornerVertices: 1
-    numCapVertices: 1
+    numCornerVertices: 90
+    numCapVertices: 38
     alignment: 0
-    textureMode: 3
+    textureMode: 0
     shadowBias: 0.5
     generateLightingData: 0
-  m_MinVertexDistance: 1
+  m_MinVertexDistance: 0
   m_Autodestruct: 0
   m_Emitting: 1
 --- !u!54 &180358036
@@ -1027,8 +1027,8 @@ Rigidbody:
   m_Drag: 0
   m_AngularDrag: 0.05
   m_UseGravity: 0
-  m_IsKinematic: 0
-  m_Interpolate: 0
+  m_IsKinematic: 1
+  m_Interpolate: 1
   m_Constraints: 0
   m_CollisionDetection: 0
 --- !u!114 &180358037
@@ -1044,15 +1044,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sim: {fileID: 0}
-  mass: 0.00000033022
+  mass: 0.0000003285
   bodyName: Mercury
   largestInfluencer: {fileID: 0}
   rb: {fileID: 0}
   currentVelocity: {x: 0, y: 0, z: 0}
   trail: {fileID: 0}
   fake: 0
-  radius: 0.00244
-  initialVelocity: {x: 0, y: 0, z: 0.46}
+  addedVelocity: {x: 0, y: 0, z: 0}
+  radius: 0.0024397
+  initialVelocity: {x: 0, y: 0, z: 0.1}
 --- !u!23 &180358038
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -2069,7 +2070,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cameraController: {fileID: 1444508045}
   radiusMultiplier: 1000000
-  massMultiplier: 1e+27
+  massMultiplier: 1e+30
   velocityMultiplier: 1000
   propertiesAnimator: {fileID: 284419847}
   isPropertiesOut: 0
@@ -2403,6 +2404,7 @@ RectTransform:
   - {fileID: 983754163}
   - {fileID: 205776893}
   - {fileID: 1292711218}
+  - {fileID: 586387061}
   m_Father: {fileID: 931473108}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -2803,6 +2805,82 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &586387060
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 586387061}
+  - component: {fileID: 586387063}
+  - component: {fileID: 586387062}
+  m_Layer: 5
+  m_Name: SliderBackground
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &586387061
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 586387060}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 505609067}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 30, y: 20}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &586387062
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 586387060}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.3773585, g: 0.35837188, b: 0.35837188, a: 0.20392157}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
+  m_Type: 1
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &586387063
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 586387060}
+  m_CullTransparentMesh: 1
 --- !u!1 &717337654
 GameObject:
   m_ObjectHideFlags: 0
@@ -3895,7 +3973,7 @@ TrailRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Time: 75
+  m_Time: 10
   m_Parameters:
     serializedVersion: 3
     widthMultiplier: 0.1
@@ -3952,13 +4030,13 @@ TrailRenderer:
       m_Mode: 0
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
-    numCornerVertices: 1
-    numCapVertices: 1
+    numCornerVertices: 90
+    numCapVertices: 38
     alignment: 0
-    textureMode: 3
+    textureMode: 0
     shadowBias: 0.5
     generateLightingData: 0
-  m_MinVertexDistance: 1
+  m_MinVertexDistance: 0
   m_Autodestruct: 0
   m_Emitting: 1
 --- !u!54 &947106622
@@ -3973,8 +4051,8 @@ Rigidbody:
   m_Drag: 0
   m_AngularDrag: 0.05
   m_UseGravity: 0
-  m_IsKinematic: 0
-  m_Interpolate: 0
+  m_IsKinematic: 1
+  m_Interpolate: 1
   m_Constraints: 0
   m_CollisionDetection: 0
 --- !u!114 &947106623
@@ -3990,15 +4068,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sim: {fileID: 0}
-  mass: 0.005972
+  mass: 0.000005972
   bodyName: Earth
   largestInfluencer: {fileID: 0}
   rb: {fileID: 0}
   currentVelocity: {x: 0, y: 0, z: 0}
   trail: {fileID: 0}
   fake: 0
-  radius: 0.006378
-  initialVelocity: {x: 0, y: 0, z: 0.3}
+  addedVelocity: {x: 0, y: 0, z: 0}
+  radius: 0.006371
+  initialVelocity: {x: 0, y: 0, z: 0.07}
 --- !u!23 &947106624
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -4794,15 +4873,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sim: {fileID: 0}
-  mass: 1989
+  mass: 300
   bodyName: Sun
   largestInfluencer: {fileID: 0}
   rb: {fileID: 0}
   currentVelocity: {x: 0, y: 0, z: 0}
   trail: {fileID: 0}
   fake: 0
+  addedVelocity: {x: 0, y: 0, z: 0}
   radius: 0.69634
-  initialVelocity: {x: 0, y: 0, z: 0}
+  initialVelocity: {x: 0.02, y: 0, z: 0}
 --- !u!23 &1246201236
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -4881,8 +4961,8 @@ Rigidbody:
   m_Drag: 0
   m_AngularDrag: 0.05
   m_UseGravity: 0
-  m_IsKinematic: 0
-  m_Interpolate: 0
+  m_IsKinematic: 1
+  m_Interpolate: 1
   m_Constraints: 0
   m_CollisionDetection: 0
 --- !u!96 &1246201240
@@ -4927,7 +5007,7 @@ TrailRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Time: 75
+  m_Time: 10
   m_Parameters:
     serializedVersion: 3
     widthMultiplier: 0.1
@@ -4984,13 +5064,13 @@ TrailRenderer:
       m_Mode: 0
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
-    numCornerVertices: 1
-    numCapVertices: 1
+    numCornerVertices: 90
+    numCapVertices: 38
     alignment: 0
-    textureMode: 3
+    textureMode: 0
     shadowBias: 0.5
     generateLightingData: 0
-  m_MinVertexDistance: 1
+  m_MinVertexDistance: 0
   m_Autodestruct: 0
   m_Emitting: 1
 --- !u!120 &1246201241
@@ -6254,7 +6334,7 @@ TrailRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Time: 75
+  m_Time: 10
   m_Parameters:
     serializedVersion: 3
     widthMultiplier: 0.1
@@ -6311,13 +6391,13 @@ TrailRenderer:
       m_Mode: 0
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
-    numCornerVertices: 1
-    numCapVertices: 1
+    numCornerVertices: 90
+    numCapVertices: 38
     alignment: 0
-    textureMode: 3
+    textureMode: 0
     shadowBias: 0.5
     generateLightingData: 0
-  m_MinVertexDistance: 1
+  m_MinVertexDistance: 0
   m_Autodestruct: 0
   m_Emitting: 1
 --- !u!54 &1594881787
@@ -6332,8 +6412,8 @@ Rigidbody:
   m_Drag: 0
   m_AngularDrag: 0.05
   m_UseGravity: 0
-  m_IsKinematic: 0
-  m_Interpolate: 0
+  m_IsKinematic: 1
+  m_Interpolate: 1
   m_Constraints: 0
   m_CollisionDetection: 0
 --- !u!114 &1594881788
@@ -6349,15 +6429,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sim: {fileID: 0}
-  mass: 0.0000048685
+  mass: 0.000004867
   bodyName: Venus
   largestInfluencer: {fileID: 0}
   rb: {fileID: 0}
   currentVelocity: {x: 0, y: 0, z: 0}
   trail: {fileID: 0}
   fake: 0
-  radius: 0.006052
-  initialVelocity: {x: 0, y: 0, z: 0.33}
+  addedVelocity: {x: 0, y: 0, z: 0}
+  radius: 0.0060518
+  initialVelocity: {x: 0, y: 0, z: 0.08}
 --- !u!23 &1594881789
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -7654,7 +7735,7 @@ TrailRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Time: 75
+  m_Time: 10
   m_Parameters:
     serializedVersion: 3
     widthMultiplier: 0.1
@@ -7711,13 +7792,13 @@ TrailRenderer:
       m_Mode: 0
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
-    numCornerVertices: 1
-    numCapVertices: 1
+    numCornerVertices: 90
+    numCapVertices: 38
     alignment: 0
-    textureMode: 3
+    textureMode: 0
     shadowBias: 0.5
     generateLightingData: 0
-  m_MinVertexDistance: 1
+  m_MinVertexDistance: 0
   m_Autodestruct: 0
   m_Emitting: 1
 --- !u!54 &2038874184
@@ -7732,8 +7813,8 @@ Rigidbody:
   m_Drag: 0
   m_AngularDrag: 0.05
   m_UseGravity: 0
-  m_IsKinematic: 0
-  m_Interpolate: 0
+  m_IsKinematic: 1
+  m_Interpolate: 1
   m_Constraints: 0
   m_CollisionDetection: 0
 --- !u!114 &2038874185
@@ -7749,15 +7830,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sim: {fileID: 0}
-  mass: 0.00007437
+  mass: 0.000000073476734
   bodyName: Moon
   largestInfluencer: {fileID: 0}
   rb: {fileID: 0}
   currentVelocity: {x: 0, y: 0, z: 0}
   trail: {fileID: 0}
   fake: 0
-  radius: 0.001738
-  initialVelocity: {x: 0, y: 0, z: 0.31}
+  addedVelocity: {x: 0, y: 0, z: 0}
+  radius: 0.0017374
+  initialVelocity: {x: 0, y: 0, z: 0.065}
 --- !u!23 &2038874186
 MeshRenderer:
   m_ObjectHideFlags: 0

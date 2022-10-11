@@ -20,6 +20,8 @@ public class BaseBody : MonoBehaviour
 
     public bool fake = false;
 
+    private Vector3 addedVelocity = new Vector3(0,0,0);
+
     // Start is called before the first frame update
     void Start()
     {
@@ -82,5 +84,10 @@ public class BaseBody : MonoBehaviour
     public void UpdatePosition(float timeStep)
     {
         rb.MovePosition(rb.position + currentVelocity * timeStep);
+    }
+
+    public void AddVelocity(Vector3 vel)
+    {
+        addedVelocity += vel;
     }
 }

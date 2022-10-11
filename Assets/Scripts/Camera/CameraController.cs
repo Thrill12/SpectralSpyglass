@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class CameraController : MonoBehaviour
 {
@@ -29,7 +30,6 @@ public class CameraController : MonoBehaviour
     // Unity Loop which runs on every frame
     private void Update()
     {
-        HandleSwitchingPlanets();
         HandleOrbit();
     }
 
@@ -62,30 +62,30 @@ public class CameraController : MonoBehaviour
     // a PIP sphere with rotation circles in 3 axis for easier rotation.
     private void HandleOrbit()
     {
-        if (Input.GetMouseButton(0))
+        if (!EventSystem.current.IsPointerOverGameObject())
         {
-            transform.RotateAround(rotateTarget.transform.position, cam.transform.up, Input.GetAxis("Mouse X") * moveSens * Time.smoothDeltaTime);
-            transform.RotateAround(rotateTarget.transform.position, cam.transform.right, -Input.GetAxis("Mouse Y") * moveSens * Time.smoothDeltaTime);
+            if (Input.GetMouseButton(0))
+            {
+                transform.RotateAround(rotateTarget.transform.position, cam.transform.up, Input.GetAxis("Mouse X") * moveSens * Time.smoothDeltaTime);
+                transform.RotateAround(rotateTarget.transform.position, cam.transform.right, -Input.GetAxis("Mouse Y") * moveSens * Time.smoothDeltaTime);
+            }
         }
     }
 
-    // Function for switching which planet the user is observing
-    private void HandleSwitchingPlanets()
+    public void PrevInArray()
     {
-        if (Input.GetKeyDown(KeyCode.D))
-        {
-            currIndex--;
-            CheckOverflowArrayGT();
+        currIndex--;
+        CheckOverflowArrayGT();
 
-            ChangeParent();
-        }
-        else if (Input.GetKeyDown(KeyCode.A))
-        {
-            currIndex++;
-            CheckOverflowArrayLT();
+        ChangeParent();
+    }
 
-            ChangeParent();
-        }
+    public void NextInArray()
+    {
+        currIndex++;
+        CheckOverflowArrayLT();
+
+        ChangeParent();
     }
 
     // Function to move the index from the bottom to the end if user got to the start of the array

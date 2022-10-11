@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -12,6 +13,7 @@ public class UIManager : MonoBehaviour
 
     public float radiusMultiplier;
     public float massMultiplier;
+    public float velocityMultiplier;
 
     [Space(5)]
 
@@ -20,13 +22,21 @@ public class UIManager : MonoBehaviour
     public Animator propertiesAnimator;
     public bool isPropertiesOut = true;
 
-    public TMP_Text bodyName;
-    public TMP_Text bodyMass;
-    public TMP_Text radius;
-    public TMP_Text velX;
-    public TMP_Text velY;
-    public TMP_Text velZ;
+    public TMP_InputField bodyName;
+    public TMP_InputField bodyMass;
+    public TMP_InputField radius;
+
+    public TMP_InputField velX;
+    public TMP_InputField velY;
+    public TMP_InputField velZ;
     public TMP_Text largestInfluencer;
+
+    string oldName;
+    string oldMass;
+    string oldRadius;
+    string oldVelx;
+    string oldVely;
+    string oldVelz;
 
     #region Slider
 
@@ -45,6 +55,7 @@ public class UIManager : MonoBehaviour
     bool isPaused;
 
     Simulation sim;
+    BaseBody observedBody;
 
     private void Start()
     {
@@ -56,20 +67,24 @@ public class UIManager : MonoBehaviour
 
     private void Update()
     {
-        if(sim.timeStep != 0)
+        observedBody = cameraController.currentTracking;
+
+        if (sim.timeStep != 0)
         {
             isPaused = false;
             startPauseButton.sprite = pausedButton;
 
-            if (!isPropertiesOut)
-            {
-                DisplayProperties();
-            }
+            DisplayProperties();
         }
         else
         {
             isPaused = true;
             startPauseButton.sprite = playingButton;          
+        }
+
+        if (isDirty())
+        {
+            SetProperties();
         }
     }
 
@@ -120,24 +135,81 @@ public class UIManager : MonoBehaviour
     {
         if (cameraController.currentTracking == null) return;
 
-        BaseBody observedBody = cameraController.currentTracking;
         bodyName.text = observedBody.bodyName;
-        bodyMass.text = "Mass: " + (observedBody.mass * massMultiplier).ToString() + " kg";
+        bodyMass.text = (observedBody.mass * massMultiplier).ToString();
 
         if(observedBody as CelestialBody)
         {
             CelestialBody celes = (CelestialBody)observedBody;
-            radius.text = "Radius: " + (celes.radius * radiusMultiplier).ToString() + " km";
+            radius.text = (celes.radius * radiusMultiplier).ToString();
         }
         else
         {
             radius.text = "";
         }
-        velX.text = "X: " + observedBody.currentVelocity.x.ToString();
-        velY.text = "Y: " + observedBody.currentVelocity.y.ToString();
-        velZ.text = "Z: " + observedBody.currentVelocity.z.ToString();
+
+        velX.text = (observedBody.currentVelocity.x * velocityMultiplier ).ToString();
+        velY.text = (observedBody.currentVelocity.y * velocityMultiplier ).ToString();
+        velZ.text = (observedBody.currentVelocity.z * velocityMultiplier ).ToString();
+
         largestInfluencer.text = "Largest influencer: " + observedBody.largestInfluencer.bodyName;
     }
+
+    public bool isDirty()
+    {
+        if(bodyName.text != oldName)
+        {
+            oldName = bodyName.text;
+            return true;
+        }
+
+        if(bodyMass.text != oldMass)
+        {
+            oldMass = bodyMass.text;
+            return true;
+        }
+
+        if (radius.text != oldRadius)
+        {
+            oldRadius = radius.text;
+            return true;
+        }
+
+        if(velX.text != oldVelx)
+        {
+            oldVelx = velX.text;
+            return true;
+        }
+
+        if (velY.text != oldVely)
+        {
+            oldVely = velY.text;
+            return true;
+        }
+
+        if (velZ.text != oldVelz)
+        {
+            oldVelz = velZ.text;
+            return true;
+        }
+
+        return false;
+    }
+
+    public void SetProperties()
+    {
+        observedBody.bodyName = bodyName.text;
+        observedBody.mass = (float)Convert.ToDouble(bodyMass.text) / massMultiplier;
+        
+        if(observedBody as CelestialBody)
+        {
+            CelestialBody c = (CelestialBody)observedBody;
+            c.radius = (float)Convert.ToDouble(radius.text) / radiusMultiplier;
+        }
+
+        observedBody.AddVelocity( new Vector3((float)Convert.ToDouble(velX.text), (float)Convert.ToDouble(velY), (float)Convert.ToDouble(velZ)));
+    }
+
     // Region for the different toggles we will have in the tool.
     #region Toggles
     public void ToggleBodyTrails()

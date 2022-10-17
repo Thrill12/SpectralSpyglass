@@ -11,9 +11,13 @@ public class CelestialBody : BaseBody
     
     private void Awake()
     {       
-        currentVelocity = initialVelocity;
-        
-        transform.localScale = new Vector3(radius, radius, radius);     
+        currentVelocity = initialVelocity; 
+    }
+
+    private void FixedUpdate()
+    {
+        transform.localScale = new Vector3(radius, radius, radius);
+        trail.startWidth = radius / 4;
     }
 }
 

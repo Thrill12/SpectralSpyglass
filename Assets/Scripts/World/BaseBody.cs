@@ -88,6 +88,6 @@ public class BaseBody : MonoBehaviour
 
     public void AddVelocity(Vector3 vel)
     {
-        addedVelocity += vel;
+        currentVelocity += vel - currentVelocity;
     }
 }

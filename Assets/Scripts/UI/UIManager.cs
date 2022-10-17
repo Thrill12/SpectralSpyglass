@@ -72,12 +72,12 @@ public class UIManager : MonoBehaviour
     {
         observedBody = cameraController.currentTracking;
 
+        DisplayProperties();
+
         if (sim.timeStep != 0)
         {
             isPaused = false;
-            startPauseButton.sprite = pausedButton;
-
-            DisplayProperties();
+            startPauseButton.sprite = pausedButton;   
         }
         else
         {
@@ -93,7 +93,7 @@ public class UIManager : MonoBehaviour
             if (Input.GetButton("Submit"))
             {
                 Debug.Log(fieldValue);
-                ValidateEntryFloat(fieldValue, "mass");
+                ValidateEntryDouble(fieldValue, "mass");
             }
         });
 
@@ -101,7 +101,7 @@ public class UIManager : MonoBehaviour
         {
             if (Input.GetButton("Submit"))
             {
-                ValidateEntryFloat(fieldValue, "radius");
+                ValidateEntryDouble(fieldValue, "radius");
             }
         });
 
@@ -112,40 +112,81 @@ public class UIManager : MonoBehaviour
                 ValidateEntryString(fieldValue, "bodyName");
             }
         });
+
+        velX.onEndEdit.AddListener(fieldValue =>
+        {
+            if (Input.GetButton("Submit"))
+            {
+                if(IsValidFloat(velX.text) && IsValidFloat(velY.text) && IsValidFloat(velZ.text))
+                {
+                    ValidateEntryVector3(new Vector3(float.Parse(velX.text), float.Parse(velY.text), float.Parse(velZ.text)));
+                }
+            }
+        });
+
+        velY.onEndEdit.AddListener(fieldValue =>
+        {
+            if (Input.GetButton("Submit"))
+            {
+                if (IsValidFloat(velX.text) && IsValidFloat(velY.text) && IsValidFloat(velZ.text))
+                {
+                    ValidateEntryVector3(new Vector3(float.Parse(velX.text), float.Parse(velY.text), float.Parse(velZ.text)));
+                }
+            }
+        });
+
+        velZ.onEndEdit.AddListener(fieldValue =>
+        {
+            if (Input.GetButton("Submit"))
+            {
+                if (IsValidFloat(velX.text) && IsValidFloat(velY.text) && IsValidFloat(velZ.text))
+                {
+                    ValidateEntryVector3(new Vector3(float.Parse(velX.text), float.Parse(velY.text), float.Parse(velZ.text)));
+                }
+            }
+        });
+    }
+
+    private void ValidateEntryVector3(Vector3 vector)
+    {
+        observedBody.AddVelocity(vector / velocityMultiplier);
     }
 
     private bool IsValidFloat(object input)
     {
-        float testValue;
+        float fOut;
 
-        if(float.TryParse((string)input, out testValue))
+        if(float.TryParse((string)input, out fOut))
         {
             return true;
         }
+        double dOut;
+        if(double.TryParse((string)input, out dOut))
+        {
+            return true;
+        }
+
         return false;
     }
 
-    public void ValidateEntryFloat(object value, string fieldName)
+    public void ValidateEntryDouble(object value, string fieldName)
     {
         if (!IsValidFloat(value))
         {
             return;
         }
 
-        float newValue = (float.Parse((string)value));
-
+        double newValue = (double.Parse((string)value));
+        Debug.Log("New value is " + newValue);
         if(fieldName == "mass")
         {
-            newValue /= massMultiplier;
+            Debug.Log("Converted is " + newValue / massMultiplier);
+            observedBody.GetType().GetField(fieldName).SetValue(observedBody, (float)(newValue / (double)massMultiplier));
         }
         else if(fieldName == "radius")
         {
-            newValue /= radiusMultiplier;
+            observedBody.GetType().GetField(fieldName).SetValue(observedBody, (float)(newValue / (double)radiusMultiplier));
         }
-
-        Debug.Log("Existing value is " + observedBody.GetType().GetField(fieldName).GetValue(observedBody));
-        Debug.Log("Intended value is " + newValue);
-        observedBody.GetType().GetField(fieldName).SetValue(observedBody, newValue);
     }
 
     public void ValidateEntryString(string value, string fieldName)
@@ -199,22 +240,23 @@ public class UIManager : MonoBehaviour
     {
         if (cameraController.currentTracking == null) return;
 
-        bodyName.text = observedBody.bodyName;
-        bodyMass.text = (observedBody.mass * massMultiplier).ToString();
+        if(!bodyName.isFocused) bodyName.text = observedBody.bodyName;
+
+        if(!bodyMass.isFocused) bodyMass.text = ((double)observedBody.mass * massMultiplier).ToString();
 
         if(observedBody as CelestialBody)
         {
             CelestialBody celes = (CelestialBody)observedBody;
-            radius.text = (celes.radius * radiusMultiplier).ToString();
+            if(!radius.isFocused) radius.text = ((double)celes.radius * radiusMultiplier).ToString();
         }
         else
         {
             radius.text = "";
         }
 
-        velX.text = (observedBody.currentVelocity.x * velocityMultiplier ).ToString();
-        velY.text = (observedBody.currentVelocity.y * velocityMultiplier ).ToString();
-        velZ.text = (observedBody.currentVelocity.z * velocityMultiplier ).ToString();
+        if (!velX.isFocused) velX.text = (observedBody.currentVelocity.x * velocityMultiplier ).ToString();
+        if (!velY.isFocused) velY.text = (observedBody.currentVelocity.y * velocityMultiplier ).ToString();
+        if (!velZ.isFocused) velZ.text = (observedBody.currentVelocity.z * velocityMultiplier ).ToString();
 
         largestInfluencer.text = "Largest influencer: " + observedBody.largestInfluencer.bodyName;
     }

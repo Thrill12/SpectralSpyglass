@@ -949,7 +949,7 @@ TrailRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Time: 10
+  m_Time: 25
   m_Parameters:
     serializedVersion: 3
     widthMultiplier: 0.1
@@ -1009,9 +1009,9 @@ TrailRenderer:
     numCornerVertices: 90
     numCapVertices: 38
     alignment: 0
-    textureMode: 0
+    textureMode: 1
     shadowBias: 0.5
-    generateLightingData: 0
+    generateLightingData: 1
   m_MinVertexDistance: 0
   m_Autodestruct: 0
   m_Emitting: 1
@@ -3973,7 +3973,7 @@ TrailRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Time: 10
+  m_Time: 25
   m_Parameters:
     serializedVersion: 3
     widthMultiplier: 0.1
@@ -4033,9 +4033,9 @@ TrailRenderer:
     numCornerVertices: 90
     numCapVertices: 38
     alignment: 0
-    textureMode: 0
+    textureMode: 1
     shadowBias: 0.5
-    generateLightingData: 0
+    generateLightingData: 1
   m_MinVertexDistance: 0
   m_Autodestruct: 0
   m_Emitting: 1
@@ -5007,7 +5007,7 @@ TrailRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Time: 10
+  m_Time: 25
   m_Parameters:
     serializedVersion: 3
     widthMultiplier: 0.1
@@ -5067,9 +5067,9 @@ TrailRenderer:
     numCornerVertices: 90
     numCapVertices: 38
     alignment: 0
-    textureMode: 0
+    textureMode: 1
     shadowBias: 0.5
-    generateLightingData: 0
+    generateLightingData: 1
   m_MinVertexDistance: 0
   m_Autodestruct: 0
   m_Emitting: 1
@@ -6334,7 +6334,7 @@ TrailRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Time: 10
+  m_Time: 25
   m_Parameters:
     serializedVersion: 3
     widthMultiplier: 0.1
@@ -6394,9 +6394,9 @@ TrailRenderer:
     numCornerVertices: 90
     numCapVertices: 38
     alignment: 0
-    textureMode: 0
+    textureMode: 1
     shadowBias: 0.5
-    generateLightingData: 0
+    generateLightingData: 1
   m_MinVertexDistance: 0
   m_Autodestruct: 0
   m_Emitting: 1
@@ -7735,7 +7735,7 @@ TrailRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Time: 10
+  m_Time: 25
   m_Parameters:
     serializedVersion: 3
     widthMultiplier: 0.1
@@ -7795,9 +7795,9 @@ TrailRenderer:
     numCornerVertices: 90
     numCapVertices: 38
     alignment: 0
-    textureMode: 0
+    textureMode: 1
     shadowBias: 0.5
-    generateLightingData: 0
+    generateLightingData: 1
   m_MinVertexDistance: 0
   m_Autodestruct: 0
   m_Emitting: 1

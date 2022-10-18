@@ -1006,13 +1006,13 @@ TrailRenderer:
       m_Mode: 0
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
-    numCornerVertices: 90
-    numCapVertices: 38
+    numCornerVertices: 40
+    numCapVertices: 30
     alignment: 0
     textureMode: 1
     shadowBias: 0.5
     generateLightingData: 1
-  m_MinVertexDistance: 0
+  m_MinVertexDistance: 0.001
   m_Autodestruct: 0
   m_Emitting: 1
 --- !u!54 &180358036
@@ -1210,8 +1210,8 @@ LineRenderer:
       m_Mode: 0
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
-    numCornerVertices: 0
-    numCapVertices: 0
+    numCornerVertices: 1
+    numCapVertices: 4
     alignment: 0
     textureMode: 0
     shadowBias: 0.5
@@ -2784,12 +2784,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 857f673cbf3dcf94db0a3c5d0fa94699, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  timeBetweenConicCalculations: 100
   gravConstant: 0.0001
   conicMaterial: {fileID: 2100000, guid: cd51a37a5c2a77b4d87cb34ea8599d97, type: 2}
   bodies: []
-  timeStep: 0.01
-  conicLookahead: 1000
-  conicRelative: 0
+  timeStep: 0.001
+  conicLookahead: 10000
+  conicRelative: 1
 --- !u!4 &583866563
 Transform:
   m_ObjectHideFlags: 0
@@ -4030,13 +4031,13 @@ TrailRenderer:
       m_Mode: 0
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
-    numCornerVertices: 90
-    numCapVertices: 38
+    numCornerVertices: 40
+    numCapVertices: 30
     alignment: 0
     textureMode: 1
     shadowBias: 0.5
     generateLightingData: 1
-  m_MinVertexDistance: 0
+  m_MinVertexDistance: 0.001
   m_Autodestruct: 0
   m_Emitting: 1
 --- !u!54 &947106622
@@ -4234,8 +4235,8 @@ LineRenderer:
       m_Mode: 0
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
-    numCornerVertices: 0
-    numCapVertices: 0
+    numCornerVertices: 1
+    numCapVertices: 4
     alignment: 0
     textureMode: 0
     shadowBias: 0.5
@@ -5064,13 +5065,13 @@ TrailRenderer:
       m_Mode: 0
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
-    numCornerVertices: 90
-    numCapVertices: 38
+    numCornerVertices: 40
+    numCapVertices: 30
     alignment: 0
     textureMode: 1
     shadowBias: 0.5
     generateLightingData: 1
-  m_MinVertexDistance: 0
+  m_MinVertexDistance: 0.001
   m_Autodestruct: 0
   m_Emitting: 1
 --- !u!120 &1246201241
@@ -5164,8 +5165,8 @@ LineRenderer:
       m_Mode: 0
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
-    numCornerVertices: 0
-    numCapVertices: 0
+    numCornerVertices: 1
+    numCapVertices: 4
     alignment: 0
     textureMode: 0
     shadowBias: 0.5
@@ -6391,13 +6392,13 @@ TrailRenderer:
       m_Mode: 0
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
-    numCornerVertices: 90
-    numCapVertices: 38
+    numCornerVertices: 40
+    numCapVertices: 30
     alignment: 0
     textureMode: 1
     shadowBias: 0.5
     generateLightingData: 1
-  m_MinVertexDistance: 0
+  m_MinVertexDistance: 0.001
   m_Autodestruct: 0
   m_Emitting: 1
 --- !u!54 &1594881787
@@ -6595,8 +6596,8 @@ LineRenderer:
       m_Mode: 0
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
-    numCornerVertices: 0
-    numCapVertices: 0
+    numCornerVertices: 1
+    numCapVertices: 4
     alignment: 0
     textureMode: 0
     shadowBias: 0.5
@@ -7792,13 +7793,13 @@ TrailRenderer:
       m_Mode: 0
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
-    numCornerVertices: 90
-    numCapVertices: 38
+    numCornerVertices: 40
+    numCapVertices: 30
     alignment: 0
     textureMode: 1
     shadowBias: 0.5
     generateLightingData: 1
-  m_MinVertexDistance: 0
+  m_MinVertexDistance: 0.001
   m_Autodestruct: 0
   m_Emitting: 1
 --- !u!54 &2038874184
@@ -7997,8 +7998,8 @@ LineRenderer:
       m_Mode: 0
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
-    numCornerVertices: 0
-    numCapVertices: 0
+    numCornerVertices: 1
+    numCapVertices: 4
     alignment: 0
     textureMode: 0
     shadowBias: 0.5

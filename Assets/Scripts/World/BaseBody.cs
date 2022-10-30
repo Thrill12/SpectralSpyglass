@@ -22,6 +22,8 @@ public class BaseBody : MonoBehaviour
 
     [HideInInspector] public Vector3 addedVelocity;
 
+    public List<BodyVec> orderedBodies = new List<BodyVec>();
+
     // Start is called before the first frame update
     void Start()
     {
@@ -47,7 +49,7 @@ public class BaseBody : MonoBehaviour
     // Function to calculate the velocity needed to be applied to the object per physics tick
     public void UpdateVelocity(BaseBody[] bodies, float timeStep)
     {
-        List<BodyVec> orderedBodies = new List<BodyVec>();
+        orderedBodies.Clear();
         foreach (var item in bodies)
         {
             if (item != this && !item.fake)
@@ -65,17 +67,17 @@ public class BaseBody : MonoBehaviour
                 Vector3 acceleration = force / mass;
                 currentVelocity += acceleration * timeStep;
 
-                BodyVec vecBody = new BodyVec(item, force);
+                BodyVec vecBody = new BodyVec(item, acceleration, this);
 
                 // Adding the bodies into a list in order to determine the largest influencer to simplify some equations.
                 // A small planet on the other side of the system will not really affect the sun or a much bigger planet on the other side of the solar system
-                orderedBodies.Add(new BodyVec(item, acceleration));
-                orderedBodies.OrderBy(x => x.magnitude);
+                orderedBodies.Add(vecBody);
+                orderedBodies = orderedBodies.OrderByDescending(x => x.magnitude).ToList();
             }
         }
 
         // Currently not ordering the list for some reason - need more research.
-        // Current suspicions is that the inspector somehow intervenes and stops it from properly sorting
+        // Current suspicion is that the inspector somehow intervenes and stops it from properly sorting
         // however not sure.
         largestInfluencer = orderedBodies[0].body;
     }

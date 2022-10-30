@@ -47,6 +47,7 @@ public class UIManager : MonoBehaviour
 
     public Image startPauseButton;
     public Slider simSpeedSlider;
+    public Slider conicTimeStepSlider;
 
     public Sprite pausedButton;
     public Sprite playingButton;
@@ -219,6 +220,11 @@ public class UIManager : MonoBehaviour
     {
         simSpeedSlider.value = val;
     }
+
+    public void ChangeConicLookaheadSlider()
+    {
+        sim.conicTimeStep = conicTimeStepSlider.value;
+    }
     #endregion
 
     public void TogglePropertiesWindow()
@@ -329,6 +335,11 @@ public class UIManager : MonoBehaviour
     public void CreateConic()
     {
         sim.ToggleConics();
+    }
+
+    public void ToggleConicRelative()
+    {
+        sim.conicRelative = !sim.conicRelative;
     }
     #endregion
 }

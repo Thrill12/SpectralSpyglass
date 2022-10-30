@@ -25,16 +25,18 @@ public class CelestialBody : BaseBody
 // so that we could easily sort the bodies by their force, but might 
 // end up changing this.
 [System.Serializable]
-public class BodyVec
+public struct BodyVec
 {
     public BaseBody body;
     [HideInInspector] public Vector3 forceVec;
     public float magnitude;
+    public float distance;
 
-    public BodyVec(BaseBody body, Vector3 forceVec)
+    public BodyVec(BaseBody body, Vector3 forceVec, BaseBody otherBody)
     {
         this.body = body;
         this.forceVec = forceVec;
         magnitude = forceVec.sqrMagnitude;
+        distance = Vector3.Distance(this.body.transform.position, otherBody.transform.position);
     }
 }

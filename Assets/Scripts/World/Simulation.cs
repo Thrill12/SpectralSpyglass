@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Collections;
 using UnityEngine;
+using System.Threading;
 
 public class Simulation : MonoBehaviour
 {
@@ -11,6 +13,7 @@ public class Simulation : MonoBehaviour
     [HideInInspector]
     public BaseBody[] bodies;
     public float timeStep;
+    public float conicTimeStep = 1;
     public int conicLookahead;
     public bool conicRelative = true;
 
@@ -21,6 +24,14 @@ public class Simulation : MonoBehaviour
     bool areConicsDrawn = false;
 
     public Vector3[][] futurePoints;
+
+    List<VirtualBody> vBodies = new List<VirtualBody>();
+    int refFrameIndex = 0;
+    Vector3 referenceBodyInitialPosition = Vector3.zero;
+    int current;
+    Vector3 refBodyPosition = Vector3.zero;
+    List<LineRenderer> lineRenderers = new List<LineRenderer>();
+    private bool exclusive = false;
     private void Awake()
     {
         cam = FindObjectOfType<CameraController>();
@@ -32,11 +43,32 @@ public class Simulation : MonoBehaviour
     {
         massiveBody = bodies.ToList().OrderByDescending(b => b.mass).First();
         Debug.Log(massiveBody.bodyName);
+
+        for (int i = 0; i < bodies.Length; i++)
+        {
+            lineRenderers.Add(bodies[i].GetComponent<LineRenderer>());
+        }
     }
 
     public void ToggleConics()
     {
         areConicsDrawn = !areConicsDrawn;
+    }
+
+    public void ToggleExclusive()
+    {
+        exclusive = !exclusive;
+
+        if (exclusive)
+        {
+            massiveBody = cam.currentTracking.largestInfluencer;
+        }
+        else
+        {
+            massiveBody = bodies.ToList().OrderByDescending(b => b.mass).First();
+        }
+
+        DeleteExistingOrbits();
     }
 
     public void CreateConic()
@@ -98,11 +130,11 @@ public class Simulation : MonoBehaviour
         int wantedBody = bodies.ToList().IndexOf(cam.currentTracking);
         //https://github.com/SebLague/Solar-System/blob/Episode_01/Assets/Scripts/Debug/OrbitDebugDisplay.cs
 
-        VirtualBody[] vBodies = new VirtualBody[bodies.Length];
+        vBodies = new VirtualBody[bodies.Length].ToList();
         futurePoints = new Vector3[bodies.Length][];
 
-        int refFrameIndex = 0;
-        Vector3 referenceBodyInitialPosition = Vector3.zero;
+        refFrameIndex = 0;
+        referenceBodyInitialPosition = Vector3.zero;
 
         // Taking inspiration from Sebastian Lague's implementation,
         // However will be adapted to take into account SOIs of the planets
@@ -110,7 +142,44 @@ public class Simulation : MonoBehaviour
         // This for loop creates an array of "fake" bodies, which are simulated.
         // What differes these from the original bodies is that these are not rendered,
         // only their trails are displayed so that the user can see their trajectories
-        for (int i = 0; i < vBodies.Length; i++)
+        PrepareForConicCalculations(vBodies, ref refFrameIndex, ref referenceBodyInitialPosition);
+
+        // For loop that will calculate the position of bodies for x number of steps
+        // This basically runs a second simulation, although not rendering it yet
+        for (int i = 0; i < conicLookahead; i++)
+        {
+            refBodyPosition = Vector3.zero;
+            if (conicRelative)
+            {
+                refBodyPosition = vBodies[refFrameIndex].position;
+            }
+
+            //ThreadStart accThreadStart = new ThreadStart(CalculateFutureAcceleration);
+            CalculateFutureAcceleration();
+            current = i;
+
+            //Thread accThread = new Thread(accThreadStart);
+            //accThread.Start();
+
+            //ThreadStart fpThreadStart = new ThreadStart(CalculateFuturePoints);
+            CalculateFuturePoints();
+
+            //Thread fpThread = new Thread(fpThreadStart);
+            //fpThread.Start();
+        }
+
+        //ThreadStart rendThreadStart = new ThreadStart(CalculateLineRenderer);
+        //Thread rendThread = new Thread(rendThreadStart);
+        //rendThread.Start();
+
+        CalculateLineRenderer();
+
+        areConicsDrawn = true;
+    }
+
+    private void PrepareForConicCalculations(List<VirtualBody> vBodies, ref int refFrameIndex, ref Vector3 referenceBodyInitialPosition)
+    {
+        for (int i = 0; i < vBodies.Count; i++)
         {
             vBodies[i] = new VirtualBody(bodies[i]);
             futurePoints[i] = new Vector3[conicLookahead];
@@ -121,65 +190,89 @@ public class Simulation : MonoBehaviour
                 referenceBodyInitialPosition = vBodies[i].position;
             }
         }
+    }
 
-        // For loop that will calculate the position of bodies for x number of steps
-        // This basically runs a second simulation, although not rendering it yet
-        for (int i = 0; i < conicLookahead; i++)
-        {
-            Vector3 refBodyPosition = Vector3.zero;
-            if (conicRelative)
-            {
-                refBodyPosition = vBodies[refFrameIndex].position;    
-            }
-
-            // This loop updates the velocities of all the virtual bodies
-            for (int j = 0; j < vBodies.Length; j++)
-            {
-                vBodies[j].velocity += CalculateConicAcceleration(j, vBodies) * timeStep;
-            }
-
-            for (int j = 0; j < vBodies.Length; j++)
-            {
-                Vector3 newBodyPos = vBodies[j].position + vBodies[j].velocity * timeStep;
-                vBodies[j].position = newBodyPos;
-
-                if (conicRelative)
-                {
-                    Vector3 frameOffset = refBodyPosition - referenceBodyInitialPosition;
-                    newBodyPos -= frameOffset;
-                }
-                else if(conicRelative && i == refFrameIndex)
-                {
-                    newBodyPos = referenceBodyInitialPosition;
-                }
-
-                futurePoints[j][i] = newBodyPos;
-            }   
-        }
-
+    private void CalculateLineRenderer()
+    {
         // In this loop, we are actually rendering the points we saved from each virtual
         // simulated body.
 
-        for (int bodyIndex = 0; bodyIndex < vBodies.Length; bodyIndex++)
+        if (exclusive)
         {
-            // This loop actually draws a line based on the points that we saved earlier.
-            for (int i = 0; i < futurePoints[bodyIndex].Length; i++)
+            int wantedBody = bodies.ToList().IndexOf(cam.currentTracking);
+            for (int bodyIndex = 0; bodyIndex < vBodies.Count; bodyIndex++)
             {
-                LineRenderer line = bodies[bodyIndex].gameObject.GetComponent<LineRenderer>();
+                LineRenderer line = lineRenderers[wantedBody];
                 line.enabled = true;
-                line.positionCount = futurePoints[bodyIndex].Length;
+
                 line.material = conicMaterial;
-                line.SetPositions(futurePoints[bodyIndex]);
+                line.startColor = Color.yellow;
+                line.endColor = Color.yellow;
+                line.widthMultiplier = bodies[wantedBody].transform.localScale.x / 4;
+                // This loop actually draws a line based on the points that we saved earlier.
+                for (int i = 0; i < futurePoints[wantedBody].Length; i++)
+                {
+                    line.positionCount = futurePoints[wantedBody].Length;
+                    line.SetPositions(futurePoints[wantedBody]);
+
+
+                    //Debug.Log(line.positionCount + " pos " + line.enabled);
+                }
+            }
+        }
+        else
+        {
+            for (int bodyIndex = 0; bodyIndex < vBodies.Count; bodyIndex++)
+            {
+                LineRenderer line = lineRenderers[bodyIndex];
+                line.enabled = true;
+
+                line.material = conicMaterial;
                 line.startColor = Color.yellow;
                 line.endColor = Color.yellow;
                 line.widthMultiplier = bodies[bodyIndex].transform.localScale.x / 4;
+                // This loop actually draws a line based on the points that we saved earlier.
+                for (int i = 0; i < futurePoints[bodyIndex].Length; i++)
+                {
+                    line.positionCount = futurePoints[bodyIndex].Length;
+                    line.SetPositions(futurePoints[bodyIndex]);
 
-                //Debug.Log(line.positionCount + " pos " + line.enabled);
+
+                    //Debug.Log(line.positionCount + " pos " + line.enabled);
+                }
             }
         }
         
+    }
 
-        areConicsDrawn = true;
+    private void CalculateFutureAcceleration(/*VirtualBody[] vBodies*/)
+    {
+        // This loop updates the velocities of all the virtual bodies
+        for (int j = 0; j < vBodies.Count; j++)
+        {
+            vBodies[j].velocity += CalculateConicAcceleration(j, vBodies) * conicTimeStep;
+        }
+    }
+
+    private void CalculateFuturePoints()
+    {
+        for (int j = 0; j < vBodies.Count; j++)
+        {
+            Vector3 newBodyPos = vBodies[j].position + vBodies[j].velocity * conicTimeStep;
+            vBodies[j].position = newBodyPos;
+
+            if (conicRelative)
+            {
+                Vector3 frameOffset = refBodyPosition - referenceBodyInitialPosition;
+                newBodyPos -= frameOffset;
+            }
+            else if (conicRelative && current == refFrameIndex)
+            {
+                newBodyPos = referenceBodyInitialPosition;
+            }
+
+            futurePoints[j][current] = newBodyPos;
+        }
     }
 
     // This delets the line data for the currente orbit in order to be able to toggle
@@ -205,10 +298,10 @@ public class Simulation : MonoBehaviour
     }
 
     // Function to calculate the acceleration of a single body
-    Vector3 CalculateConicAcceleration(int j, VirtualBody[] vBodies)
+    Vector3 CalculateConicAcceleration(int j, List<VirtualBody> vBodies)
     {
         Vector3 acceleration = Vector3.zero;
-        for (int i = 0; i < vBodies.Length; i++)
+        for (int i = 0; i < vBodies.Count; i++)
         {
             if (i == j) continue;
 

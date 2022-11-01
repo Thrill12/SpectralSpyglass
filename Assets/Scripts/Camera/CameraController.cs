@@ -124,5 +124,6 @@ public class CameraController : MonoBehaviour
         transform.position = new Vector3(transform.parent.position.x, transform.parent.position.y, transform.parent.position.z);
         cam.gameObject.transform.position = new Vector3(transform.position.x, Mathf.Clamp(transform.position.y, transform.position.y + (currentTracking.transform.localScale.x) * 10, oldHeight), transform.position.z);  
         transform.LookAt(rotateTarget.transform.position);
+        sim.DeleteExistingOrbits();
     }
 }

@@ -5,13 +5,14 @@ using UnityEngine;
 
 public class Simulation : MonoBehaviour
 {
+    public float timeBetweenConicCalculations;
     [HideInInspector] public float gravConstant = 0.0001f;
     public Material conicMaterial;
     [HideInInspector]
     public BaseBody[] bodies;
     public float timeStep;
     public int conicLookahead;
-    public bool conicRelative;
+    public bool conicRelative = true;
 
     BaseBody massiveBody;
     float lastSimulation;
@@ -19,6 +20,7 @@ public class Simulation : MonoBehaviour
 
     bool areConicsDrawn = false;
 
+    public Vector3[][] futurePoints;
     private void Awake()
     {
         cam = FindObjectOfType<CameraController>();
@@ -93,11 +95,11 @@ public class Simulation : MonoBehaviour
         //    mirrorBody.UpdatePosition(1f);
         //}
         #endregion
-
+        int wantedBody = bodies.ToList().IndexOf(cam.currentTracking);
         //https://github.com/SebLague/Solar-System/blob/Episode_01/Assets/Scripts/Debug/OrbitDebugDisplay.cs
 
         VirtualBody[] vBodies = new VirtualBody[bodies.Length];
-        Vector3[][] futurePoints = new Vector3[bodies.Length][];
+        futurePoints = new Vector3[bodies.Length][];
 
         int refFrameIndex = 0;
         Vector3 referenceBodyInitialPosition = Vector3.zero;
@@ -138,7 +140,7 @@ public class Simulation : MonoBehaviour
 
             for (int j = 0; j < vBodies.Length; j++)
             {
-                Vector3 newBodyPos = vBodies[j].position + vBodies[j].position * timeStep;
+                Vector3 newBodyPos = vBodies[j].position + vBodies[j].velocity * timeStep;
                 vBodies[j].position = newBodyPos;
 
                 if (conicRelative)
@@ -146,7 +148,7 @@ public class Simulation : MonoBehaviour
                     Vector3 frameOffset = refBodyPosition - referenceBodyInitialPosition;
                     newBodyPos -= frameOffset;
                 }
-                if(conicRelative && i == refFrameIndex)
+                else if(conicRelative && i == refFrameIndex)
                 {
                     newBodyPos = referenceBodyInitialPosition;
                 }
@@ -166,10 +168,11 @@ public class Simulation : MonoBehaviour
                 LineRenderer line = bodies[bodyIndex].gameObject.GetComponent<LineRenderer>();
                 line.enabled = true;
                 line.positionCount = futurePoints[bodyIndex].Length;
+                line.material = conicMaterial;
                 line.SetPositions(futurePoints[bodyIndex]);
                 line.startColor = Color.yellow;
                 line.endColor = Color.yellow;
-                line.widthMultiplier = bodies[bodyIndex].transform.localScale.x;
+                line.widthMultiplier = bodies[bodyIndex].transform.localScale.x / 4;
 
                 //Debug.Log(line.positionCount + " pos " + line.enabled);
             }
@@ -183,6 +186,13 @@ public class Simulation : MonoBehaviour
     // the display.
     public void HideOrbits()
     {
+        DeleteExistingOrbits();
+
+        areConicsDrawn = false;
+    }
+
+    public void DeleteExistingOrbits()
+    {
         BaseBody[] bodies = FindObjectsOfType<BaseBody>();
 
         for (int i = 0; i < bodies.Length; i++)
@@ -192,8 +202,6 @@ public class Simulation : MonoBehaviour
 
             line.enabled = false;
         }
-
-        areConicsDrawn = false;
     }
 
     // Function to calculate the acceleration of a single body
@@ -204,9 +212,9 @@ public class Simulation : MonoBehaviour
         {
             if (i == j) continue;
 
-            Vector3 fDir = (vBodies[j].position - vBodies[i].position).normalized;
-            float sqrDst = (vBodies[j].position - vBodies[i].position).sqrMagnitude;
-            acceleration += fDir * gravConstant * vBodies[j].mass / sqrDst;
+            Vector3 fDir = (vBodies[i].position - vBodies[j].position).normalized;
+            float sqrDst = (vBodies[i].position - vBodies[j].position).sqrMagnitude;
+            acceleration += fDir * gravConstant * vBodies[i].mass / sqrDst;
         }
         return acceleration;
     }
@@ -225,10 +233,15 @@ public class Simulation : MonoBehaviour
         for (int i = 0; i < bodies.Length; i++)
         {
             bodies[i].UpdatePosition(timeStep);
-        }       
+        }        
     }
 
     public void Update()
+    {
+        CalculateConics();
+    }
+
+    public void CalculateConics()
     {
         if (areConicsDrawn)
         {

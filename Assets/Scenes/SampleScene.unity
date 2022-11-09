@@ -909,10 +909,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bb0d6bec6b00bee4cb7777da1ba5435b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+<<<<<<< HEAD
+  radius: 0.001516
+  mass: 3.3022e+17
+  initialVelocity: {x: 0, y: 0, z: -0.46}
+=======
   sim: {fileID: 0}
   mass: 0.0000003285
   bodyName: Mercury
   largestInfluencer: {fileID: 0}
+>>>>>>> 5ccabfd659033abc12e1cc2f33a3e73b5a57323e
   rb: {fileID: 0}
   currentVelocity: {x: 0, y: 0, z: 0}
   trail: {fileID: 0}
@@ -979,8 +985,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 180358034}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.0014, y: 0, z: 0}
-  m_LocalScale: {x: 0.00244, y: 0.00244, z: 0.00244}
+  m_LocalPosition: {x: 35000, y: 0, z: 0}
+  m_LocalScale: {x: 0.001516, y: 0.001516, z: 0.001516}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -2549,7 +2555,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 583866561}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -48.32158, y: -7.0143247, z: 2.8205955}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3966,10 +3972,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bb0d6bec6b00bee4cb7777da1ba5435b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+<<<<<<< HEAD
+  radius: 0.03959
+  mass: 5.9736e+18
+  initialVelocity: {x: 0, y: 0, z: 0.3}
+=======
   sim: {fileID: 0}
   mass: 0.000005972
   bodyName: Earth
   largestInfluencer: {fileID: 0}
+>>>>>>> 5ccabfd659033abc12e1cc2f33a3e73b5a57323e
   rb: {fileID: 0}
   currentVelocity: {x: 0, y: 0, z: 0}
   trail: {fileID: 0}
@@ -4036,8 +4048,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 947106620}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 2.3914, y: 0, z: 0}
-  m_LocalScale: {x: 0.006378, y: 0.006378, z: 0.006378}
+  m_LocalPosition: {x: 93000, y: 0, z: 0}
+  m_LocalScale: {x: 0.03959, y: 0.03959, z: 0.03959}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -4924,10 +4936,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bb0d6bec6b00bee4cb7777da1ba5435b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+<<<<<<< HEAD
+  radius: 0.43269
+  mass: 1.9891e+24
+  initialVelocity: {x: 0, y: 0, z: 0}
+=======
   sim: {fileID: 0}
   mass: 300
   bodyName: Sun
   largestInfluencer: {fileID: 0}
+>>>>>>> 5ccabfd659033abc12e1cc2f33a3e73b5a57323e
   rb: {fileID: 0}
   currentVelocity: {x: 0, y: 0, z: 0}
   trail: {fileID: 0}
@@ -4944,7 +4962,7 @@ MeshRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1246201233}
   m_Enabled: 1
-  m_CastShadows: 1
+  m_CastShadows: 0
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
@@ -4995,7 +5013,7 @@ Transform:
   m_GameObject: {fileID: 1246201233}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.6957, y: 0.6957, z: 0.6957}
+  m_LocalScale: {x: 0.43269, y: 0.43269, z: 0.43269}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1196247237}
@@ -6574,10 +6592,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bb0d6bec6b00bee4cb7777da1ba5435b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+<<<<<<< HEAD
+  radius: 0.00376
+  mass: 4.8685e+18
+  initialVelocity: {x: 0, y: 0, z: 0.33}
+=======
   sim: {fileID: 0}
   mass: 0.000004867
   bodyName: Venus
   largestInfluencer: {fileID: 0}
+>>>>>>> 5ccabfd659033abc12e1cc2f33a3e73b5a57323e
   rb: {fileID: 0}
   currentVelocity: {x: 0, y: 0, z: 0}
   trail: {fileID: 0}
@@ -6644,8 +6668,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1594881785}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 2.1114, y: 0.438, z: 0}
-  m_LocalScale: {x: 0.006052, y: 0.006052, z: 0.006052}
+  m_LocalPosition: {x: 67000, y: 0, z: 0}
+  m_LocalScale: {x: 0.00376, y: 0.00376, z: 0.00376}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -8626,10 +8650,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bb0d6bec6b00bee4cb7777da1ba5435b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+<<<<<<< HEAD
+  radius: 0.0010796
+  mass: 7.349e+16
+  initialVelocity: {x: 0, y: 0, z: 0.31}
+=======
   sim: {fileID: 0}
   mass: 0.000000073476734
   bodyName: Moon
   largestInfluencer: {fileID: 0}
+>>>>>>> 5ccabfd659033abc12e1cc2f33a3e73b5a57323e
   rb: {fileID: 0}
   currentVelocity: {x: 0, y: 0, z: 0}
   trail: {fileID: 0}
@@ -8696,8 +8726,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2038874182}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+<<<<<<< HEAD
+  m_LocalPosition: {x: 93238, y: 0, z: 0}
+  m_LocalScale: {x: 0.0010796, y: 0.0010796, z: 0.0010796}
+=======
   m_LocalPosition: {x: 2.40707, y: 0, z: 0}
   m_LocalScale: {x: 0.001738, y: 0.001738, z: 0.001738}
+>>>>>>> 5ccabfd659033abc12e1cc2f33a3e73b5a57323e
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1444508042}

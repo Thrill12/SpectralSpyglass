@@ -59,6 +59,9 @@ public class UIManager : MonoBehaviour
     Simulation sim;
     BaseBody observedBody;
 
+    public GameObject planetButtonContent;
+    public GameObject planetButtonPrefab;
+
     private void Start()
     {
         sim = FindObjectOfType<Simulation>();
@@ -67,6 +70,17 @@ public class UIManager : MonoBehaviour
         simSpeedSlider.value = sim.timeStep;
 
         AddButtonListeners();
+        SetPlanetButtons();
+    }
+
+    public void SetPlanetButtons()
+    {
+        for (int i = 0; i < sim.bodies.Length; i++)
+        {
+            GameObject pButt = GameObject.Instantiate(planetButtonPrefab, planetButtonContent.transform);
+            pButt.GetComponent<PlanetButtonHolder>().bodyIndex = i;
+            pButt.GetComponentInChildren<TMP_Text>().text = sim.bodies[i].bodyName;
+        }
     }
 
     private void Update()

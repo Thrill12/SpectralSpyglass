@@ -27,9 +27,12 @@ public class UIManager : MonoBehaviour
     public TMP_InputField bodyMass;
     public TMP_InputField radius;
 
+    public Button xUp, xDown, yUp, yDown, zUp, zDown;
+    public TMP_InputField incrementInput;
     public TMP_InputField velX;
     public TMP_InputField velY;
     public TMP_InputField velZ;
+    public TMP_Text velMagnitude;
     public TMP_Text largestInfluencer;
 
     //string oldName;
@@ -57,12 +60,15 @@ public class UIManager : MonoBehaviour
     bool isPaused;
 
     Simulation sim;
-    BaseBody observedBody;
+    public BaseBody observedBody;
 
     public GameObject planetButtonContent;
     public GameObject planetButtonPrefab;
 
     public TMP_Text camSpeedText;
+
+    public GameObject contextMenuPrefab;
+    [HideInInspector] public GameObject spawnedContextMenu;
 
     private void Start()
     {
@@ -80,15 +86,13 @@ public class UIManager : MonoBehaviour
         for (int i = 0; i < sim.bodies.Length; i++)
         {
             GameObject pButt = GameObject.Instantiate(planetButtonPrefab, planetButtonContent.transform);
-            pButt.GetComponent<PlanetButtonHolder>().bodyIndex = i;
+            pButt.GetComponentInChildren<PlanetButtonHolder>().bodyIndex = i;
             pButt.GetComponentInChildren<TMP_Text>().text = sim.bodies[i].bodyName;
         }
     }
 
     private void Update()
     {
-        observedBody = cameraController.currentTracking;
-
         DisplayProperties();
 
         if (cameraController.freeCam)
@@ -110,7 +114,40 @@ public class UIManager : MonoBehaviour
         {
             isPaused = true;
             startPauseButton.sprite = playingButton;          
-        }   
+        }
+
+        ManageIncrementButtons();
+    }
+
+    public float increment = 0.0001f;
+    public void ManageIncrementButtons()
+    {
+        if (xUp.GetComponent<IncrementArrow>().isHeld)
+        {
+            observedBody.AddVelocity(new Vector3(observedBody.currentVelocity.x + increment, observedBody.currentVelocity.y, observedBody.currentVelocity.z));
+        }
+        if (xDown.GetComponent<IncrementArrow>().isHeld)
+        {
+            observedBody.AddVelocity(new Vector3(observedBody.currentVelocity.x - increment, observedBody.currentVelocity.y, observedBody.currentVelocity.z));
+        }
+
+        if (yUp.GetComponent<IncrementArrow>().isHeld)
+        {
+            observedBody.AddVelocity(new Vector3(observedBody.currentVelocity.x, observedBody.currentVelocity.y + increment, observedBody.currentVelocity.z));
+        }
+        if (yDown.GetComponent<IncrementArrow>().isHeld)
+        {
+            observedBody.AddVelocity(new Vector3(observedBody.currentVelocity.x, observedBody.currentVelocity.y - increment, observedBody.currentVelocity.z));
+        }
+
+        if (zUp.GetComponent<IncrementArrow>().isHeld)
+        {
+            observedBody.AddVelocity(new Vector3(observedBody.currentVelocity.x, observedBody.currentVelocity.y, observedBody.currentVelocity.z + increment));
+        }
+        if (zDown.GetComponent<IncrementArrow>().isHeld)
+        {
+            observedBody.AddVelocity(new Vector3(observedBody.currentVelocity.x, observedBody.currentVelocity.y, observedBody.currentVelocity.z - increment));
+        }
     }
 
     private void AddButtonListeners()
@@ -121,6 +158,18 @@ public class UIManager : MonoBehaviour
             {
                 Debug.Log(fieldValue);
                 ValidateEntryDouble(fieldValue, "mass");
+            }
+        });
+
+        incrementInput.onEndEdit.AddListener(fieldValue =>
+        {
+            if (Input.GetButton("Submit"))
+            {
+                float fOut;
+                if (float.TryParse(fieldValue, out fOut))
+                {
+                    increment = float.Parse(fieldValue) / velocityMultiplier;
+                }
             }
         });
 
@@ -270,7 +319,7 @@ public class UIManager : MonoBehaviour
     // Here we are displaying all the properties in the window.
     public void DisplayProperties()
     {
-        if (cameraController.currentTracking == null) return;
+        if (observedBody == null) return;
 
         if(!bodyName.isFocused) bodyName.text = observedBody.bodyName;
 
@@ -286,11 +335,19 @@ public class UIManager : MonoBehaviour
             radius.text = "";
         }
 
+        if (!incrementInput.isFocused) incrementInput.text = (increment * velocityMultiplier).ToString();
         if (!velX.isFocused) velX.text = (observedBody.currentVelocity.x * velocityMultiplier ).ToString();
         if (!velY.isFocused) velY.text = (observedBody.currentVelocity.y * velocityMultiplier ).ToString();
         if (!velZ.isFocused) velZ.text = (observedBody.currentVelocity.z * velocityMultiplier ).ToString();
 
+        velMagnitude.text = (observedBody.speedMagnitude * velocityMultiplier).ToString() + "m/s";
+
         largestInfluencer.text = "Largest influencer: " + observedBody.largestInfluencer.bodyName;
+    }
+
+    public void DeleteContext()
+    {
+        Destroy(spawnedContextMenu.gameObject);
     }
 
     //public bool isDirty()

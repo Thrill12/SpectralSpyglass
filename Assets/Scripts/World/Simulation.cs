@@ -17,7 +17,7 @@ public class Simulation : MonoBehaviour
     public int conicLookahead;
     public bool conicRelative = true;
 
-    BaseBody massiveBody;
+    public BaseBody bodyRelativeTo;
     float lastSimulation;
     CameraController cam;
 
@@ -41,8 +41,8 @@ public class Simulation : MonoBehaviour
 
     public void Start()
     {
-        massiveBody = bodies.ToList().OrderByDescending(b => b.mass).First();
-        Debug.Log(massiveBody.bodyName);
+        bodyRelativeTo = bodies.ToList().OrderByDescending(b => b.mass).First();
+        Debug.Log(bodyRelativeTo.bodyName);
 
         for (int i = 0; i < bodies.Length; i++)
         {
@@ -58,15 +58,6 @@ public class Simulation : MonoBehaviour
     public void ToggleExclusive()
     {
         exclusive = !exclusive;
-
-        if (exclusive)
-        {
-            massiveBody = cam.currentTracking.largestInfluencer;
-        }
-        else
-        {
-            massiveBody = bodies.ToList().OrderByDescending(b => b.mass).First();
-        }
 
         DeleteExistingOrbits();
     }
@@ -184,7 +175,7 @@ public class Simulation : MonoBehaviour
             vBodies[i] = new VirtualBody(bodies[i]);
             futurePoints[i] = new Vector3[conicLookahead];
 
-            if (bodies[i] == massiveBody && conicRelative)
+            if (bodies[i] == bodyRelativeTo && conicRelative)
             {
                 refFrameIndex = i;
                 referenceBodyInitialPosition = vBodies[i].position;

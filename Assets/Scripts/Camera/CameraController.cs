@@ -8,6 +8,7 @@ public class CameraController : MonoBehaviour
     Simulation sim;
     [HideInInspector] public BaseBody currentTracking;
     public Camera cam;
+    UIManager ui;
 
     [HideInInspector] public GameObject rotateTarget;
     public float moveSens = 15;
@@ -25,6 +26,7 @@ public class CameraController : MonoBehaviour
     {
         sim = FindObjectOfType<Simulation>();
         cam = GetComponentInChildren<Camera>();
+        ui = FindObjectOfType<UIManager>();
     }
 
     // Unity function which runs at the start of the scene
@@ -38,14 +40,15 @@ public class CameraController : MonoBehaviour
     {
         HandleOrbit();
 
-        if (Input.GetMouseButtonDown(1))
+        if (Input.GetMouseButtonDown(1) && !EventSystem.current.IsPointerOverGameObject())
         {
+            ui.DeleteContext();
+            GetComponentInChildren<Transform>().position = transform.position;
             freeCam = true;
         }
 
         if (freeCam)
-        {
-            
+        {         
             FreeCamMove();
         }
     }
@@ -53,6 +56,7 @@ public class CameraController : MonoBehaviour
     private void FreeCamMove()
     {
         transform.parent = null;
+        Camera.main.transform.position = transform.position;
 
         transform.Translate(-Vector3.up * moveSpeed * Input.GetAxis("Vertical"), Space.Self);
         transform.Translate(Vector3.right * moveSpeed * Input.GetAxis("Horizontal"), Space.Self);
@@ -95,6 +99,7 @@ public class CameraController : MonoBehaviour
         {
             if (Input.GetMouseButton(0))
             {
+                ui.DeleteContext();
                 transform.RotateAround(rotateTarget.transform.position, cam.transform.up, Input.GetAxis("Mouse X") * moveSens * Time.deltaTime);
                 transform.RotateAround(rotateTarget.transform.position, cam.transform.right, -Input.GetAxis("Mouse Y") * moveSens * Time.deltaTime);
                 Cursor.visible = false;
@@ -110,9 +115,14 @@ public class CameraController : MonoBehaviour
         {
             if (Input.GetMouseButton(1))
             {
+                ui.DeleteContext();
                 Cursor.visible = false;
                 Cursor.lockState = CursorLockMode.Locked;
-                transform.Rotate(-Input.GetAxis("Mouse Y") * moveSens * Time.smoothDeltaTime, 0, Input.GetAxis("Mouse X") * moveSens * Time.smoothDeltaTime);
+
+                transform.Rotate(0, 0, Input.GetAxis("Mouse X") * moveSens * Time.deltaTime);
+                transform.Rotate(-Input.GetAxis("Mouse Y") * moveSens * Time.deltaTime, 0, 0);
+
+                //transform.Rotate(-Input.GetAxis("Mouse Y") * moveSens * Time.smoothDeltaTime, 0, Input.GetAxis("Mouse X") * moveSens * Time.smoothDeltaTime);
             }
             else
             {
@@ -159,6 +169,7 @@ public class CameraController : MonoBehaviour
     // Changes the parent of the camera so that it follows another planet
     private void ChangeParent()
     {
+        ui.DeleteContext();
         transform.SetPositionAndRotation(transform.position, Quaternion.identity) ;
         currentTracking = sim.bodies[currIndex];
         rotateTarget = currentTracking.gameObject;
@@ -170,6 +181,7 @@ public class CameraController : MonoBehaviour
         transform.SetParent(sim.bodies[currIndex].transform);
         float oldHeight = transform.position.y;
 
+        ui.observedBody = currentTracking;
         // This sets the position of the camera using the celestial body's radius so that the camera doesn't spawn inside an object when switching to its view.
         transform.position = new Vector3(transform.parent.position.x, transform.parent.position.y, transform.parent.position.z);
         cam.gameObject.transform.position = new Vector3(transform.position.x, Mathf.Clamp(transform.position.y, transform.position.y + (currentTracking.transform.localScale.x) * 10, oldHeight), transform.position.z);  

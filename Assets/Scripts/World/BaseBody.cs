@@ -26,6 +26,8 @@ public class BaseBody : MonoBehaviour
 
     UIManager ui;
 
+    public float speedMagnitude;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -47,6 +49,15 @@ public class BaseBody : MonoBehaviour
     void Update()
     {
         
+    }
+
+    public void CalculateSpeedMagnitude()
+    {
+        float x = currentVelocity.x;
+        float y = currentVelocity.y;
+        float z = currentVelocity.z;
+
+        speedMagnitude = Mathf.Sqrt(x * x + y * y + z * z);
     }
 
     // Function to calculate the velocity needed to be applied to the object per physics tick
@@ -88,6 +99,7 @@ public class BaseBody : MonoBehaviour
     // Function to move the body to its correct position based on its current position and its velocity
     public void UpdatePosition(float timeStep)
     {
+        CalculateSpeedMagnitude();
         rb.MovePosition(rb.position + currentVelocity * timeStep);
     }
 

@@ -17,6 +17,9 @@ public class CameraController : MonoBehaviour
     public bool freeCam = false;
     public float moveSpeed = 1;
 
+    public float minSpeed = 0.001f;
+    public float maxSpeed = 0.01f;
+
     // Unity function which runs at the start of the scene earlier than the start function
     private void Awake()
     {
@@ -55,8 +58,8 @@ public class CameraController : MonoBehaviour
         transform.Translate(Vector3.right * moveSpeed * Input.GetAxis("Horizontal"), Space.Self);
         transform.Translate(Vector3.forward * moveSpeed * Input.GetAxis("UpDown"), Space.Self);
 
-        float scrlWheel = Input.GetAxis("Mouse ScrollWheel") / 100;
-        moveSpeed = Mathf.Clamp(moveSpeed + scrlWheel, 0.0001f, 0.01f);
+        float scrlWheel = Input.GetAxis("Mouse ScrollWheel") / 120;
+        moveSpeed = Mathf.Clamp(moveSpeed + scrlWheel, minSpeed, maxSpeed);
     }
 
     // Function for zooming in the camera. Another alternative was to use the FOV of the camera,
@@ -94,6 +97,13 @@ public class CameraController : MonoBehaviour
             {
                 transform.RotateAround(rotateTarget.transform.position, cam.transform.up, Input.GetAxis("Mouse X") * moveSens * Time.deltaTime);
                 transform.RotateAround(rotateTarget.transform.position, cam.transform.right, -Input.GetAxis("Mouse Y") * moveSens * Time.deltaTime);
+                Cursor.visible = false;
+                Cursor.lockState = CursorLockMode.Locked;
+            }
+            else
+            {
+                Cursor.lockState = CursorLockMode.None;
+                Cursor.visible = true;
             }
         }
         else if (!EventSystem.current.IsPointerOverGameObject() && freeCam)

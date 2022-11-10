@@ -24,9 +24,12 @@ public class BaseBody : MonoBehaviour
 
     public List<BodyVec> orderedBodies = new List<BodyVec>();
 
+    UIManager ui;
+
     // Start is called before the first frame update
     void Start()
     {
+        ui = GameObject.FindObjectOfType<UIManager>();
         sim = GameObject.FindObjectOfType<Simulation>();
         rb = GetComponent<Rigidbody>();
         trail = GetComponent<TrailRenderer>();
@@ -63,7 +66,7 @@ public class BaseBody : MonoBehaviour
                 // r = sqrDst
                 float sqrDst = (item.rb.position - rb.position).sqrMagnitude;
                 Vector3 forceDir = (item.rb.position - rb.position).normalized;
-                Vector3 force = forceDir * sim.gravConstant * mass * item.mass / sqrDst;
+                Vector3 force = (forceDir * sim.gravConstant * mass * item.mass / sqrDst);
                 Vector3 acceleration = force / mass;
                 currentVelocity += acceleration * timeStep;
 

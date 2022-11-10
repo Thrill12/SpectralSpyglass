@@ -62,6 +62,8 @@ public class UIManager : MonoBehaviour
     public GameObject planetButtonContent;
     public GameObject planetButtonPrefab;
 
+    public TMP_Text camSpeedText;
+
     private void Start()
     {
         sim = FindObjectOfType<Simulation>();
@@ -88,6 +90,16 @@ public class UIManager : MonoBehaviour
         observedBody = cameraController.currentTracking;
 
         DisplayProperties();
+
+        if (cameraController.freeCam)
+        {
+            camSpeedText.enabled = true;
+            camSpeedText.text = Mathf.RoundToInt(cameraController.moveSpeed * 10000) + "x";
+        }
+        else
+        {
+            camSpeedText.enabled = false;
+        }
 
         if (sim.timeStep != 0)
         {

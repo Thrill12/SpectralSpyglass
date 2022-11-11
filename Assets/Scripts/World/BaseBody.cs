@@ -7,15 +7,15 @@ using UnityEngine;
 public class BaseBody : MonoBehaviour
 {
     public Simulation sim;
-    public float mass;
-    public string bodyName;
+    [SerializeField] public float mass;
+    [SerializeField] public string bodyName;
     
     public BaseBody largestInfluencer;
 
     // Unity component which contains functions to set and get the position of an object
     [HideInInspector] public Rigidbody rb;
 
-    [HideInInspector] public Vector3 currentVelocity;
+    public Vector3 currentVelocity;
     public TrailRenderer trail;
 
     public bool fake = false;

@@ -70,6 +70,8 @@ public class UIManager : MonoBehaviour
     public GameObject contextMenuPrefab;
     [HideInInspector] public GameObject spawnedContextMenu;
 
+    public TMP_Text fpsCounter;
+
     private void Start()
     {
         sim = FindObjectOfType<Simulation>();
@@ -94,6 +96,8 @@ public class UIManager : MonoBehaviour
     private void Update()
     {
         DisplayProperties();
+
+        fpsCounter.text = ((int)(1 / Time.smoothDeltaTime)).ToString();
 
         if (cameraController.freeCam)
         {

@@ -6,8 +6,8 @@ using UnityEngine;
 
 public class CelestialBody : BaseBody
 {
-    public float radius;
-    public Vector3 initialVelocity;  
+    [SerializeField] public float radius;
+    [SerializeField] public Vector3 initialVelocity;  
     
     private void Awake()
     {       

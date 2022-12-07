@@ -10,10 +10,12 @@ public class CameraZoom : MonoBehaviour
     public float sensitivity = 10f;
 
     CameraController camCon;
+    Camera uiCam;
 
     private void Start()
     {
         camCon = Camera.main.GetComponentInParent<CameraController>();
+        uiCam = GetComponentInChildren<Camera>();
     }
 
     void Update()
@@ -27,6 +29,8 @@ public class CameraZoom : MonoBehaviour
             fov -= Input.GetAxis("Mouse ScrollWheel") * sensitivity;
             fov = Mathf.Clamp(fov, minFov, maxFov);
             Camera.main.fieldOfView = fov;
+            
         }
+        uiCam.fieldOfView = Camera.main.fieldOfView;
     }
 }

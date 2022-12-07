@@ -19,10 +19,11 @@ public class PlanetButtonHolder : MonoBehaviour, IPointerClickHandler
         }
         else if (eventData.button == PointerEventData.InputButton.Right)
         {
+            Debug.Log("Right clicked");
             if(FindObjectOfType<UIManager>().spawnedContextMenu == null)
             {
                 GameObject context = Instantiate(FindObjectOfType<UIManager>().contextMenuPrefab, Input.mousePosition, Quaternion.identity);
-                context.transform.parent = FindObjectOfType<Canvas>().transform;
+                context.transform.parent = GameObject.FindGameObjectWithTag("Main Canvas").transform;
                 context.transform.position = Input.mousePosition;
                 context.GetComponent<PlanetContextMenu>().selectedBodyIndex = bodyIndex;
 

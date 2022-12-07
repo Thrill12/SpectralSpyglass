@@ -4,6 +4,7 @@ using System.Linq;
 using Unity.Collections;
 using UnityEngine;
 using System.Threading;
+using System;
 
 public class Simulation : MonoBehaviour
 {
@@ -11,7 +12,7 @@ public class Simulation : MonoBehaviour
     [HideInInspector] public float gravConstant = 0.0001f;
     public Material conicMaterial;
     [HideInInspector]
-    public BaseBody[] bodies;
+    public List<BaseBody> bodies = new List<BaseBody>();
     public float timeStep;
     public float conicTimeStep = 1;
     public int conicLookahead;
@@ -20,8 +21,9 @@ public class Simulation : MonoBehaviour
     public BaseBody bodyRelativeTo;
     float lastSimulation;
     CameraController cam;
+    UIManager ui;
 
-    bool areConicsDrawn = false;
+    public bool areConicsDrawn = false;
 
     public Vector3[][] futurePoints;
 
@@ -32,10 +34,19 @@ public class Simulation : MonoBehaviour
     Vector3 refBodyPosition = Vector3.zero;
     List<LineRenderer> lineRenderers = new List<LineRenderer>();
     private bool exclusive = false;
+
+    public GameObject ghostPlanet;
+
+    public event Action onChangePlanets;
+
+    public Vector3[][] ellipsePoints;
+
     private void Awake()
     {
         cam = FindObjectOfType<CameraController>();
-        bodies = FindObjectsOfType<BaseBody>();
+        bodies = FindObjectsOfType<BaseBody>().ToList();
+        ui = FindObjectOfType<UIManager>();
+
         NormalSimulation();
     }
 
@@ -44,10 +55,12 @@ public class Simulation : MonoBehaviour
         bodyRelativeTo = bodies.ToList().OrderByDescending(b => b.mass).First();
         Debug.Log(bodyRelativeTo.bodyName);
 
-        for (int i = 0; i < bodies.Length; i++)
+        for (int i = 0; i < bodies.Count; i++)
         {
             lineRenderers.Add(bodies[i].GetComponent<LineRenderer>());
         }
+
+        onChangePlanets.Invoke();
     }
 
     public void ToggleConics()
@@ -62,6 +75,8 @@ public class Simulation : MonoBehaviour
         DeleteExistingOrbits();
     }
 
+    int apogeeIndex;
+    int perigeeIndex;
     public void CreateConic()
     {
         #region Old Way
@@ -119,16 +134,20 @@ public class Simulation : MonoBehaviour
         //}
         #endregion
         int wantedBody = bodies.ToList().IndexOf(cam.currentTracking);
-        //https://github.com/SebLague/Solar-System/blob/Episode_01/Assets/Scripts/Debug/OrbitDebugDisplay.cs
 
-        vBodies = new VirtualBody[bodies.Length].ToList();
-        futurePoints = new Vector3[bodies.Length][];
+        //Instead of trying to implement a really complicated algorithm and trying to solve
+        //the N-Body problem mathematically, we can run a second, "fake" simulation of the 
+        //current system, and then trace the path that that simulation takes.
+        //The simulation runs faster than the real simulation, giving the illusion of predicting the 
+        //path of the solar system.
+        vBodies = new VirtualBody[bodies.Where(x => x.fake == false).Count()].ToList();
+        futurePoints = new Vector3[bodies.Count][];
+        ellipsePoints = new Vector3[bodies.Count][];
 
         refFrameIndex = 0;
         referenceBodyInitialPosition = Vector3.zero;
 
         // Taking inspiration from Sebastian Lague's implementation,
-        // However will be adapted to take into account SOIs of the planets
 
         // This for loop creates an array of "fake" bodies, which are simulated.
         // What differes these from the original bodies is that these are not rendered,
@@ -145,23 +164,11 @@ public class Simulation : MonoBehaviour
                 refBodyPosition = vBodies[refFrameIndex].position;
             }
 
-            //ThreadStart accThreadStart = new ThreadStart(CalculateFutureAcceleration);
             CalculateFutureAcceleration();
             current = i;
 
-            //Thread accThread = new Thread(accThreadStart);
-            //accThread.Start();
-
-            //ThreadStart fpThreadStart = new ThreadStart(CalculateFuturePoints);
             CalculateFuturePoints();
-
-            //Thread fpThread = new Thread(fpThreadStart);
-            //fpThread.Start();
         }
-
-        //ThreadStart rendThreadStart = new ThreadStart(CalculateLineRenderer);
-        //Thread rendThread = new Thread(rendThreadStart);
-        //rendThread.Start();
 
         CalculateLineRenderer();
 
@@ -172,6 +179,8 @@ public class Simulation : MonoBehaviour
     {
         for (int i = 0; i < vBodies.Count; i++)
         {
+            if (bodies[i].fake) continue;
+
             vBodies[i] = new VirtualBody(bodies[i]);
             futurePoints[i] = new Vector3[conicLookahead];
 
@@ -190,7 +199,7 @@ public class Simulation : MonoBehaviour
 
         if (exclusive)
         {
-            int wantedBody = bodies.ToList().IndexOf(cam.currentTracking);
+            int wantedBody = bodies.ToList().IndexOf(ui.observedBody);
             for (int bodyIndex = 0; bodyIndex < vBodies.Count; bodyIndex++)
             {
                 LineRenderer line = lineRenderers[wantedBody];
@@ -205,7 +214,6 @@ public class Simulation : MonoBehaviour
                 {
                     line.positionCount = futurePoints[wantedBody].Length;
                     line.SetPositions(futurePoints[wantedBody]);
-
 
                     //Debug.Log(line.positionCount + " pos " + line.enabled);
                 }
@@ -228,12 +236,112 @@ public class Simulation : MonoBehaviour
                     line.positionCount = futurePoints[bodyIndex].Length;
                     line.SetPositions(futurePoints[bodyIndex]);
 
-
                     //Debug.Log(line.positionCount + " pos " + line.enabled);
                 }
             }
         }
         
+    }
+
+    public float FindAverageDistanceFromBody(BaseBody body)
+    {
+        if(bodyRelativeTo != null)
+        {
+            int bodyIndex = bodies.IndexOf(body);
+
+            Vector3[] thisFuture = futurePoints[bodyIndex];
+
+            float sumOfDistances = 0;
+
+            for (int i = 0; i < thisFuture.Length; i++)
+            {
+                sumOfDistances += (bodyRelativeTo.gameObject.transform.position - body.gameObject.transform.position).magnitude;
+            }
+
+            float avgDistance = sumOfDistances / thisFuture.Length;
+
+            return avgDistance;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+
+    public float FindPeriodForBody(BaseBody body)
+    {
+        if(bodyRelativeTo != null)
+        {
+            float semiMajorAxis = FindSemiMajorAxis(body);
+            float twoPi = Mathf.PI * 2;
+            float bottomFraction = gravConstant * (body.mass + bodyRelativeTo.mass);
+
+            float fraction = Mathf.Pow(semiMajorAxis, 3) / bottomFraction;
+            float period = twoPi * Mathf.Sqrt(fraction);
+            return period;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+
+    public float FindSOIRadius(BaseBody body)
+    {
+        if(bodyRelativeTo != null)
+        {
+            // in Unity scale. i would need to divide this scale by the mass scale in order to find an appropriate scale for it
+            float semiMajorAxis = FindSemiMajorAxis(body);
+            Debug.Log("SOI is " + semiMajorAxis);
+            float fraction = body.mass / bodyRelativeTo.mass;
+            float radius = semiMajorAxis * Mathf.Pow(fraction, (2 / 5));
+            return radius;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+
+    // SemiMajor axis is one half of the largest diameter of the body's orbit
+    public float FindSemiMajorAxis(BaseBody body)
+    {
+        if(futurePoints != null)
+        {
+            Vector3[] bodyPoints = futurePoints[bodies.IndexOf(body)];
+
+            // My logic for working this out will be that I am looping through each point and finding the distance between it and the body.
+            // The furthest point in this single rotation will be the one before the points start to get closer
+
+            bool hasFoundOneCloser = false;
+            float lastDistance = 0;
+            int counter = -1;
+            Debug.Log(bodyPoints.Length);
+            while (hasFoundOneCloser == false)
+            {
+                counter++;
+                Vector3 point = bodyPoints[counter];
+                Debug.Log(point);
+                float distance = Vector3.Distance(body.gameObject.transform.position, bodyRelativeTo.gameObject.transform.position);
+                if (distance >= lastDistance)
+                {
+                    Debug.Log("Current distance is " + distance + " at counter " + counter);
+                    lastDistance = distance;
+                    
+                }
+                else
+                {
+                    hasFoundOneCloser = true;
+                }
+            }
+
+            Debug.Log("SMA is " + (lastDistance / 2));
+            return lastDistance / 2;
+        }
+        else
+        {
+            return 0;
+        }
     }
 
     private void CalculateFutureAcceleration(/*VirtualBody[] vBodies*/)
@@ -249,6 +357,7 @@ public class Simulation : MonoBehaviour
     {
         for (int j = 0; j < vBodies.Count; j++)
         {
+            VirtualBody body = vBodies[j];
             Vector3 newBodyPos = vBodies[j].position + vBodies[j].velocity * conicTimeStep;
             vBodies[j].position = newBodyPos;
 
@@ -266,7 +375,7 @@ public class Simulation : MonoBehaviour
         }
     }
 
-    // This delets the line data for the currente orbit in order to be able to toggle
+    // This deletes the line data for the currente orbit in order to be able to toggle
     // the display.
     public void HideOrbits()
     {
@@ -303,18 +412,19 @@ public class Simulation : MonoBehaviour
         return acceleration;
     }
 
-    // Unity function which runs at around 50 times per second in time with the physics update
+    // Unity function which runs a
+    // around 50 times per second in time with the physics update
     // Here, we calculate the velocities and the positions of the objects.
     // We do it here so we don't have to do it an unnecessary amount of times in the normal
     // Update function.
     private void FixedUpdate()
     {
-        for (int i = 0; i < bodies.Length; i++)
+        for (int i = 0; i < bodies.Count; i++)
         {
             bodies[i].UpdateVelocity(bodies, timeStep);
         }
 
-        for (int i = 0; i < bodies.Length; i++)
+        for (int i = 0; i < bodies.Count; i++)
         {
             bodies[i].UpdatePosition(timeStep);
         }        
@@ -368,5 +478,19 @@ public class Simulation : MonoBehaviour
     public void SlideValueChange(float newValue)
     {
         timeStep = newValue;
+    }
+
+    public void Snapshot(CelestialBody bodyToSnap)
+    {
+        GameObject snapshot = Instantiate(ghostPlanet, bodyToSnap.transform.position, Quaternion.identity);
+        snapshot.GetComponent<BaseBody>().bodyName = bodyToSnap.bodyName + " [Snapshot]";
+        snapshot.GetComponent<CelestialBody>().radius = bodyToSnap.radius;
+        snapshot.GetComponent<CelestialBody>().mass = bodyToSnap.mass;
+        snapshot.GetComponent<BaseBody>().fake = true;
+        bodies.Add(snapshot.GetComponent<BaseBody>());
+
+        snapshot.GetComponent<BaseBody>().currentVelocity = Vector3.zero;
+
+        onChangePlanets.Invoke();
     }
 }

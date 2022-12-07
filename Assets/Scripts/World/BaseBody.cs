@@ -61,13 +61,19 @@ public class BaseBody : MonoBehaviour
     }
 
     // Function to calculate the velocity needed to be applied to the object per physics tick
-    public void UpdateVelocity(BaseBody[] bodies, float timeStep)
+    public void UpdateVelocity(List<BaseBody> bodies, float timeStep)
     {
+        if (fake) return;
+
+        transform.localRotation = Quaternion.LookRotation(currentVelocity);
+        
+
         orderedBodies.Clear();
         foreach (var item in bodies)
         {
-            if (item != this && !item.fake)
+            if (item != this)
             {
+                if (item.fake) continue;
                 // Newton's Gravitational Formula
                 // F = G((m1*m2)/r^2)
                 // F = force
@@ -99,12 +105,56 @@ public class BaseBody : MonoBehaviour
     // Function to move the body to its correct position based on its current position and its velocity
     public void UpdatePosition(float timeStep)
     {
-        CalculateSpeedMagnitude();
-        rb.MovePosition(rb.position + currentVelocity * timeStep);
+        if (!fake)
+        {
+            CalculateSpeedMagnitude();
+            rb.MovePosition(rb.position + currentVelocity * timeStep);
+        }
     }
 
-    public void AddVelocity(Vector3 vel)
+    public void SetVelocity(Vector3 vel)
     {
         currentVelocity += vel - currentVelocity;
     }
+
+    public void AddVelocity(float magnitude, RelativeDirection direction)
+    {
+        Vector3 dir = FindVectorFromRelativeDirection(direction);
+        Vector3 combined = dir * magnitude;
+        SetVelocity(combined + currentVelocity);
+    }
+
+    private Vector3 FindVectorFromRelativeDirection(RelativeDirection direction)
+    {
+        //transform.right -> radial out
+        //-transform.right -> radial in
+        //transform.up -> normal
+        //-transform.up -> antinormal
+        switch (direction)
+        {
+            case RelativeDirection.Prograde:
+                return currentVelocity.normalized;
+            case RelativeDirection.Retrograde:
+                return -currentVelocity.normalized;
+            case RelativeDirection.Normal:
+                return transform.up;
+            case RelativeDirection.Antinormal:
+                return -transform.up;
+            case RelativeDirection.Radial:
+                return -transform.right;
+            case RelativeDirection.Antiradial:
+                return transform.right;
+        }
+        return Vector3.zero;
+    }
+}
+
+public enum RelativeDirection
+{
+    Prograde,
+    Retrograde,
+    Normal,
+    Antinormal,
+    Radial,
+    Antiradial
 }

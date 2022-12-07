@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 
@@ -16,6 +17,14 @@ public class PlanetContextMenu : MonoBehaviour
         sim = GameObject.FindObjectOfType<Simulation>();
         con = GameObject.FindObjectOfType<CameraController>();
         ui = FindObjectOfType<UIManager>();
+
+        if (sim.bodies[selectedBodyIndex].fake)
+        {
+            foreach (var item in GetComponentsInChildren<ContextButton>().Where(x => x.canAffectFakeBodies == false))
+            {
+                Destroy(item.gameObject);
+            }
+        }
     }
 
     public void RelativeToThis()
@@ -37,12 +46,24 @@ public class PlanetContextMenu : MonoBehaviour
     public void SelectProperties()
     {
         ui.observedBody = sim.bodies[selectedBodyIndex];
+        sim.DeleteExistingOrbits();
+        ContextMenuClick();
+    }
 
+    public void SetTarget()
+    {
+        ui.targetBody = sim.bodies[selectedBodyIndex];
         ContextMenuClick();
     }
 
     public void ContextMenuClick()
     {
         Destroy(gameObject);
+    }  
+
+    public void Snapshot()
+    {
+        sim.Snapshot(sim.bodies[selectedBodyIndex] as CelestialBody);
+        ContextMenuClick();
     }
 }

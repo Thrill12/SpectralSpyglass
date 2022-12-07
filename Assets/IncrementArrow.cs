@@ -6,7 +6,6 @@ using UnityEngine.EventSystems;
 public class IncrementArrow : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 {
     public bool isHeld = false;
-
     public void OnPointerDown(PointerEventData eventData)
     {
         isHeld = true;

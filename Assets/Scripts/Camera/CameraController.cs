@@ -151,7 +151,7 @@ public class CameraController : MonoBehaviour
     // Function to move the index from the bottom to the end if user got to the start of the array
     private void CheckOverflowArrayLT()
     {
-        if (currIndex > sim.bodies.Length - 1)
+        if (currIndex > sim.bodies.Count - 1)
         {
             currIndex = 0;
         }
@@ -162,7 +162,7 @@ public class CameraController : MonoBehaviour
     {
         if (currIndex < 0)
         {
-            currIndex = sim.bodies.Length - 1;
+            currIndex = sim.bodies.Count - 1;
         }
     }
 

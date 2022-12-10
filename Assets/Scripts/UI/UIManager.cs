@@ -39,6 +39,13 @@ public class UIManager : MonoBehaviour
     public TMP_Text relativeTo;
     public TMP_Text soiText;
 
+    [Header("Orbital Properties")]
+
+    public GameObject orbitProperties;
+    public TMP_Text semiMajorAxisText;
+    public TMP_Text periodText;
+    public TMP_Text semiMajorAxisUnityScale;
+
     public bool isChangingXYZVelocity;
 
     public GameObject xyzVelocity;
@@ -513,11 +520,16 @@ public class UIManager : MonoBehaviour
 
         if (sim.areConicsDrawn)
         {
-            soiText.text = "SOI: " + (((radiusMultiplier / massMultiplier) * sim.FindSOIRadius(observedBody as CelestialBody)) / 1000) + " km";
+            soiText.text = "SOI: " + ((radiusMultiplier * sim.FindSOIRadius(observedBody as CelestialBody))) + " km";
+            orbitProperties.SetActive(true);
+            semiMajorAxisText.text = "a: " + Math.Round(sim.FindSemiMajorAxis(observedBody) * radiusMultiplier, 2) + " km";
+            periodText.text = "T: " + Math.Round(sim.FindPeriodForBody(observedBody), 2) + " s";
+            semiMajorAxisUnityScale.text = "A: " + (Math.Round(sim.FindSemiMajorAxis(observedBody), 5)) + " u";
         }
         else
         {
             soiText.text = "Turn on trajectories for SOI";
+            orbitProperties.SetActive(false);
         }
 
         if (largestInfluencer != null) largestInfluencer.text = "Largest influencer: " + observedBody.largestInfluencer.bodyName;

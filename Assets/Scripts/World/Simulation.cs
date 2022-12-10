@@ -40,12 +40,15 @@ public class Simulation : MonoBehaviour
     public event Action onChangePlanets;
 
     public Vector3[][] ellipsePoints;
-
+    LineRenderer lineDebug;
     private void Awake()
     {
         cam = FindObjectOfType<CameraController>();
         bodies = FindObjectsOfType<BaseBody>().ToList();
         ui = FindObjectOfType<UIManager>();
+
+        lineDebugSphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        lineDebug = lineDebugSphere.AddComponent<LineRenderer>();
 
         NormalSimulation();
     }
@@ -268,12 +271,17 @@ public class Simulation : MonoBehaviour
         }
     }
 
+    public float GetMajorAxis(BaseBody body)
+    {
+        return FindSemiMajorAxis(body) * 2f;
+    }
+
     public float FindPeriodForBody(BaseBody body)
     {
         if(bodyRelativeTo != null)
         {
             float semiMajorAxis = FindSemiMajorAxis(body);
-            float twoPi = Mathf.PI * 2;
+            float twoPi = Mathf.PI * 2f;
             float bottomFraction = gravConstant * (body.mass + bodyRelativeTo.mass);
 
             float fraction = Mathf.Pow(semiMajorAxis, 3) / bottomFraction;
@@ -292,9 +300,11 @@ public class Simulation : MonoBehaviour
         {
             // in Unity scale. i would need to divide this scale by the mass scale in order to find an appropriate scale for it
             float semiMajorAxis = FindSemiMajorAxis(body);
-            Debug.Log("SOI is " + semiMajorAxis);
+            //Debug.Log("SMA is " + semiMajorAxis);
             float fraction = body.mass / bodyRelativeTo.mass;
-            float radius = semiMajorAxis * Mathf.Pow(fraction, (2 / 5));
+            float twoFifths = 2f / 5f;
+            float radius = semiMajorAxis * Mathf.Pow(fraction, twoFifths);
+            //Debug.Log("SOI is " + radius);
             return radius;
         }
         else
@@ -303,6 +313,7 @@ public class Simulation : MonoBehaviour
         }
     }
 
+    GameObject lineDebugSphere;
     // SemiMajor axis is one half of the largest diameter of the body's orbit
     public float FindSemiMajorAxis(BaseBody body)
     {
@@ -313,30 +324,63 @@ public class Simulation : MonoBehaviour
             // My logic for working this out will be that I am looping through each point and finding the distance between it and the body.
             // The furthest point in this single rotation will be the one before the points start to get closer
 
-            bool hasFoundOneCloser = false;
             float lastDistance = 0;
             int counter = -1;
+
             Debug.Log(bodyPoints.Length);
-            while (hasFoundOneCloser == false)
+
+            lineDebug.positionCount = 2;
+            lineDebug.startWidth = 0.2f;
+            lineDebug.endWidth = 0.1f;
+
+            Vector3 closestPoint = Vector3.zero;
+            int closestPointIndex = 0;
+            float closestPointDistance = Mathf.Infinity;
+
+            for (int i = 0; i < bodyPoints.Length; i++)
             {
-                counter++;
-                Vector3 point = bodyPoints[counter];
-                Debug.Log(point);
-                float distance = Vector3.Distance(body.gameObject.transform.position, bodyRelativeTo.gameObject.transform.position);
-                if (distance >= lastDistance)
+                Vector3 point = bodyPoints[i];
+                float distance = Vector3.Distance(point, bodyRelativeTo.transform.position);
+                if (distance < closestPointDistance)
                 {
-                    Debug.Log("Current distance is " + distance + " at counter " + counter);
-                    lastDistance = distance;
-                    
+                    closestPointDistance = distance;
+                    closestPoint = point;
+                    closestPointIndex = bodyPoints.ToList().IndexOf(point);
                 }
                 else
                 {
-                    hasFoundOneCloser = true;
+                    break;
                 }
             }
 
-            Debug.Log("SMA is " + (lastDistance / 2));
-            return lastDistance / 2;
+            lineDebug.SetPosition(0, closestPoint);
+
+            // We want to find the next furthest point which will be in the current orbital period.
+            // If we didn't start from here, we might find some other furthest point in the next orbit or something.
+            counter = closestPointIndex;
+
+            Vector3 furthestPoint = Vector3.zero;
+
+            for (int i = counter; i < counter + (bodyPoints.Length - counter); i++)
+            {
+                Vector3 point = bodyPoints[i];
+                float distance = Vector3.Distance(point, bodyRelativeTo.transform.position);
+                if (distance >= lastDistance)
+                {
+                    lastDistance = distance;
+                    furthestPoint = point;
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            float realDistance = Vector3.Distance(closestPoint, furthestPoint);
+
+            lineDebug.SetPosition(1, furthestPoint);
+
+            return realDistance / 2;
         }
         else
         {

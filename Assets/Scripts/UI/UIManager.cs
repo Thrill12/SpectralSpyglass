@@ -12,9 +12,8 @@ public class UIManager : MonoBehaviour
 
     [Header("Scale Multipliers")]
 
-    public float radiusMultiplier;
-    public float massMultiplier;
-    public float velocityMultiplier;
+    public float distanceScaleFactor;
+    public float massScaleFactor;
 
     [Space(5)]
 
@@ -221,7 +220,7 @@ public class UIManager : MonoBehaviour
                 var avgScale = (0.01f) / 2;
 
                 instantiatedMarker.transform.localScale = new Vector3(-avgScale, avgScale, avgScale);
-                float scaledDistance = dir.magnitude * radiusMultiplier;
+                float scaledDistance = dir.magnitude * distanceScaleFactor;
 
                 //instantiated marker needs to be pointed up towards the z axis of the camera parent...
                 //instantiatedMarker.transform.LookAt(cameraController.gameObject.transform, cameraController.gameObject.transform.up);
@@ -322,7 +321,7 @@ public class UIManager : MonoBehaviour
                 float fOut;
                 if (float.TryParse(fieldValue, out fOut))
                 {
-                    increment = float.Parse(fieldValue) / velocityMultiplier;
+                    increment = float.Parse(fieldValue) / distanceScaleFactor;
                 }
             }
         });
@@ -401,7 +400,7 @@ public class UIManager : MonoBehaviour
 
     private void ValidateEntryVector3(Vector3 vector)
     {
-        observedBody.SetVelocity(vector / velocityMultiplier);
+        observedBody.SetVelocity(vector / distanceScaleFactor);
     }
 
     private bool IsValidFloat(object input)
@@ -429,15 +428,13 @@ public class UIManager : MonoBehaviour
         }
 
         double newValue = (double.Parse((string)value));
-        Debug.Log("New value is " + newValue);
         if(fieldName == "mass")
         {
-            Debug.Log("Converted is " + newValue / massMultiplier);
-            observedBody.GetType().GetField(fieldName).SetValue(observedBody, (float)(newValue / (double)massMultiplier));
+            observedBody.GetType().GetField(fieldName).SetValue(observedBody, (float)(newValue / (double)massScaleFactor));
         }
         else if(fieldName == "radius")
         {
-            observedBody.GetType().GetField(fieldName).SetValue(observedBody, (float)(newValue / (double)radiusMultiplier));
+            observedBody.GetType().GetField(fieldName).SetValue(observedBody, (float)(newValue / (double)distanceScaleFactor));
         }
     }
 
@@ -499,30 +496,30 @@ public class UIManager : MonoBehaviour
 
         if(!bodyName.isFocused) bodyName.text = observedBody.bodyName;
 
-        if(!bodyMass.isFocused) bodyMass.text = ((double)observedBody.mass * massMultiplier).ToString();
+        if(!bodyMass.isFocused) bodyMass.text = ((double)observedBody.mass * massScaleFactor).ToString();
 
         if(observedBody as CelestialBody)
         {
             CelestialBody celes = (CelestialBody)observedBody;
-            if(!radius.isFocused) radius.text = ((double)celes.radius * radiusMultiplier).ToString();
+            if(!radius.isFocused) radius.text = ((double)celes.radius * distanceScaleFactor).ToString();
         }
         else
         {
             radius.text = "";
         }
 
-        if (!incrementInput.isFocused) incrementInput.text = (increment * velocityMultiplier).ToString();
-        if (!velX.isFocused) velX.text = (observedBody.currentVelocity.x * velocityMultiplier ).ToString();
-        if (!velY.isFocused) velY.text = (observedBody.currentVelocity.y * velocityMultiplier ).ToString();
-        if (!velZ.isFocused) velZ.text = (observedBody.currentVelocity.z * velocityMultiplier ).ToString();
+        if (!incrementInput.isFocused) incrementInput.text = (increment * distanceScaleFactor).ToString();
+        if (!velX.isFocused) velX.text = (observedBody.currentVelocity.x * distanceScaleFactor).ToString();
+        if (!velY.isFocused) velY.text = (observedBody.currentVelocity.y * distanceScaleFactor).ToString();
+        if (!velZ.isFocused) velZ.text = (observedBody.currentVelocity.z * distanceScaleFactor).ToString();
 
-        velMagnitude.text = (observedBody.speedMagnitude * velocityMultiplier).ToString() + "m/s";
+        velMagnitude.text = (observedBody.speedMagnitude * distanceScaleFactor / 1000).ToString() + "km/s";
 
         if (sim.areConicsDrawn)
         {
-            soiText.text = "SOI: " + ((radiusMultiplier * sim.FindSOIRadius(observedBody as CelestialBody))) + " km";
+            soiText.text = "SOI: " + ((distanceScaleFactor * sim.FindSOIRadius(observedBody as CelestialBody))) + " km";
             orbitProperties.SetActive(true);
-            semiMajorAxisText.text = "a: " + Math.Round(sim.FindSemiMajorAxis(observedBody) * radiusMultiplier, 2) + " km";
+            semiMajorAxisText.text = "a: " + Math.Round(sim.FindSemiMajorAxis(observedBody) * distanceScaleFactor / 1000, 2) + " km";
             periodText.text = "T: " + Math.Round(sim.FindPeriodForBody(observedBody), 2) + " s";
             semiMajorAxisUnityScale.text = "A: " + (Math.Round(sim.FindSemiMajorAxis(observedBody), 5)) + " u";
         }

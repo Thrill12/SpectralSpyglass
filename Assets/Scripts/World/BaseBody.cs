@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -83,7 +84,10 @@ public class BaseBody : MonoBehaviour
                 // r = sqrDst
                 float sqrDst = (item.rb.position - rb.position).sqrMagnitude;
                 Vector3 forceDir = (item.rb.position - rb.position).normalized;
-                Vector3 force = (forceDir * sim.gravConstant * mass * item.mass / sqrDst);
+                Vector3 force = forceDir * ((sim.gravConstant * mass * item.mass) / sqrDst);
+
+                LogWriter.instance.Log("|" + DateTime.Now.ToString("HH:mm:ss") +"|" + bodyName + "||" + sim.gravConstant + " * (" + mass + " * " + item.mass + ") / " + sqrDst + " = " + force.magnitude + " for " + item.bodyName);
+
                 Vector3 acceleration = force / mass;
                 currentVelocity += acceleration * timeStep;
 

@@ -9,7 +9,7 @@ using System;
 public class Simulation : MonoBehaviour
 {
     public float timeBetweenConicCalculations;
-    [HideInInspector] public float gravConstant = 0.0001f;
+    public float gravConstant = 0.0001f;
     public Material conicMaterial;
     [HideInInspector]
     public List<BaseBody> bodies = new List<BaseBody>();
@@ -43,6 +43,7 @@ public class Simulation : MonoBehaviour
     LineRenderer lineDebug;
     private void Awake()
     {
+        Debug.Log("G is " + gravConstant);
         cam = FindObjectOfType<CameraController>();
         bodies = FindObjectsOfType<BaseBody>().ToList();
         ui = FindObjectOfType<UIManager>();
@@ -327,8 +328,6 @@ public class Simulation : MonoBehaviour
             float lastDistance = 0;
             int counter = -1;
 
-            Debug.Log(bodyPoints.Length);
-
             lineDebug.positionCount = 2;
             lineDebug.startWidth = 0.2f;
             lineDebug.endWidth = 0.1f;
@@ -471,12 +470,14 @@ public class Simulation : MonoBehaviour
         for (int i = 0; i < bodies.Count; i++)
         {
             bodies[i].UpdatePosition(timeStep);
-        }        
+        }
+
+        CalculateConics();
     }
 
     public void Update()
     {
-        CalculateConics();
+        
     }
 
     public void CalculateConics()

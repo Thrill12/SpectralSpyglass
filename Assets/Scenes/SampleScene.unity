@@ -1451,7 +1451,7 @@ Rigidbody:
   m_Drag: 0
   m_AngularDrag: 0.05
   m_UseGravity: 0
-  m_IsKinematic: 1
+  m_IsKinematic: 0
   m_Interpolate: 1
   m_Constraints: 0
   m_CollisionDetection: 0
@@ -1468,7 +1468,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sim: {fileID: 0}
-  mass: 0.0000003285
+  mass: 0.0003285
   bodyName: Mercury
   largestInfluencer: {fileID: 0}
   rb: {fileID: 0}
@@ -1479,7 +1479,7 @@ MonoBehaviour:
   orderedBodies: []
   speedMagnitude: 0
   radius: 0.024397
-  initialVelocity: {x: 0, y: 0, z: 0.1}
+  initialVelocity: {x: 0, y: 0, z: 0.0001}
 --- !u!23 &180358038
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -3105,9 +3105,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cameraController: {fileID: 1444508045}
-  radiusMultiplier: 100000
-  massMultiplier: 1e+30
-  velocityMultiplier: 100000
+  distanceScaleFactor: 100000000
+  massScaleFactor: 1e+27
   propertiesAnimator: {fileID: 284419847}
   isPropertiesOut: 0
   bodyName: {fileID: 1689104064}
@@ -3162,7 +3161,7 @@ MonoBehaviour:
   clearTargetButton: {fileID: 928877835}
   observer: {fileID: 8587221443581811910, guid: 1b396b2f3ce1bb043a9fae73c2da21e3, type: 3}
   instantiatedObserver: {fileID: 0}
-  increment: 0.0001
+  increment: 0.000001
 --- !u!4 &437472048
 Transform:
   m_ObjectHideFlags: 0
@@ -3850,7 +3849,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   timeBetweenConicCalculations: 100
-  gravConstant: 0.0001
+  gravConstant: 0.00000006674
   conicMaterial: {fileID: 2100000, guid: cd51a37a5c2a77b4d87cb34ea8599d97, type: 2}
   bodies: []
   timeStep: 0.001
@@ -6187,7 +6186,7 @@ Rigidbody:
   m_Drag: 0
   m_AngularDrag: 0.05
   m_UseGravity: 0
-  m_IsKinematic: 1
+  m_IsKinematic: 0
   m_Interpolate: 1
   m_Constraints: 0
   m_CollisionDetection: 0
@@ -6204,7 +6203,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sim: {fileID: 0}
-  mass: 0.000005972
+  mass: 0.005972
   bodyName: Earth
   largestInfluencer: {fileID: 0}
   rb: {fileID: 0}
@@ -6215,7 +6214,7 @@ MonoBehaviour:
   orderedBodies: []
   speedMagnitude: 0
   radius: 0.06371
-  initialVelocity: {x: 0, y: 0, z: 0.7}
+  initialVelocity: {x: 0, y: 0, z: 0.0001}
 --- !u!23 &947106624
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -6274,7 +6273,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 947106620}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 14.959787, y: 0, z: 0}
+  m_LocalPosition: {x: 1496, y: 0, z: 0}
   m_LocalScale: {x: 0.06371, y: 0.06371, z: 0.06371}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -7786,7 +7785,7 @@ Rigidbody:
   m_Drag: 0
   m_AngularDrag: 0.05
   m_UseGravity: 0
-  m_IsKinematic: 1
+  m_IsKinematic: 0
   m_Interpolate: 1
   m_Constraints: 0
   m_CollisionDetection: 0
@@ -9945,7 +9944,7 @@ Rigidbody:
   m_Drag: 0
   m_AngularDrag: 0.05
   m_UseGravity: 0
-  m_IsKinematic: 1
+  m_IsKinematic: 0
   m_Interpolate: 1
   m_Constraints: 0
   m_CollisionDetection: 0
@@ -9962,7 +9961,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sim: {fileID: 0}
-  mass: 0.000004867
+  mass: 0.004867
   bodyName: Venus
   largestInfluencer: {fileID: 0}
   rb: {fileID: 0}
@@ -9973,7 +9972,7 @@ MonoBehaviour:
   orderedBodies: []
   speedMagnitude: 0
   radius: 0.060518
-  initialVelocity: {x: 0, y: 0, z: 0.08}
+  initialVelocity: {x: 0, y: 0, z: 0.0001}
 --- !u!23 &1594881789
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -10428,7 +10427,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1109046175}
   m_Direction: 0
   m_MinValue: 0.001
-  m_MaxValue: 10
+  m_MaxValue: 50
   m_WholeNumbers: 0
   m_Value: 0.001
   m_OnValueChanged:
@@ -12151,6 +12150,50 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!1 &1891656351
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1891656353}
+  - component: {fileID: 1891656352}
+  m_Layer: 0
+  m_Name: LogWriter
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1891656352
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1891656351}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 84262b38945308c418dd9b12c303711b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &1891656353
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1891656351}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 867.6055, y: 337.271, z: 0.0044355625}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 11
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1923741808
 GameObject:
   m_ObjectHideFlags: 0
@@ -12981,7 +13024,7 @@ Rigidbody:
   m_Drag: 0
   m_AngularDrag: 0.05
   m_UseGravity: 0
-  m_IsKinematic: 1
+  m_IsKinematic: 0
   m_Interpolate: 1
   m_Constraints: 0
   m_CollisionDetection: 0
@@ -12998,7 +13041,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sim: {fileID: 0}
-  mass: 0.000000073476734
+  mass: 0.00007347673
   bodyName: Moon
   largestInfluencer: {fileID: 0}
   rb: {fileID: 0}
@@ -13009,7 +13052,7 @@ MonoBehaviour:
   orderedBodies: []
   speedMagnitude: 0
   radius: 0.017374
-  initialVelocity: {x: 0, y: 0, z: 0.065}
+  initialVelocity: {x: 0, y: 0, z: 0.0001}
 --- !u!23 &2038874186
 MeshRenderer:
   m_ObjectHideFlags: 0

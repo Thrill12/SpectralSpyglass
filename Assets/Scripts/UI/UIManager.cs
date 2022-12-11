@@ -17,7 +17,7 @@ public class UIManager : MonoBehaviour
 
     [Space(5)]
 
-    [Header("Properties text")]
+    [Header("Editable properties")]
 
     public Animator propertiesAnimator;
     public bool isPropertiesOut = true;
@@ -34,21 +34,26 @@ public class UIManager : MonoBehaviour
     public TMP_InputField velY;
     public TMP_InputField velZ;
     public TMP_Text velMagnitude;
-    public TMP_Text largestInfluencer;
-    public TMP_Text relativeTo;
-    public TMP_Text soiText;
+    public TMP_Text largestInfluencer;    
+
+    [Space(5)]
 
     [Header("Orbital Properties")]
 
     public GameObject orbitProperties;
     public TMP_Text semiMajorAxisText;
     public TMP_Text periodText;
-    public TMP_Text semiMajorAxisUnityScale;
+    public TMP_Text perigeeText;
+    public TMP_Text apogeeText;
 
     public bool isChangingXYZVelocity;
 
     public GameObject xyzVelocity;
     public GameObject relativeVelocity;
+
+    public GameObject soiToggle;
+    public GameObject soiPrefab;
+    private GameObject instantiatedSOI;
 
     // In what I would call relative velocity terms, adding delta v into different directions is not just
     // on the x y or z axis. In orbital mechanics and real life rocket trajectory planning,
@@ -69,10 +74,17 @@ public class UIManager : MonoBehaviour
 
     public Image startPauseButton;
     public Slider simSpeedSlider;
-    public Slider conicTimeStepSlider;
-
     public Sprite pausedButton;
     public Sprite playingButton;
+
+    [Space(5)]
+
+    [Header("Conics")]
+
+    public Slider conicTimeStepSlider;
+    public TMP_Text conicRelativeTo;
+    public TMP_Text conicSOIText;
+    public GameObject conicRelativeToggle;
 
     #endregion
 
@@ -122,6 +134,13 @@ public class UIManager : MonoBehaviour
 
         AddButtonListeners();
         //SetPlanetButtons();
+
+        if (instantiatedSOI == null)
+        {
+            instantiatedSOI = GameObject.Instantiate(soiPrefab, Vector3.zero, Quaternion.identity);
+        }
+
+        ToggleSOI();
 
         sim.onChangePlanets += SetPlanetButtons;
     }
@@ -515,31 +534,41 @@ public class UIManager : MonoBehaviour
 
         velMagnitude.text = (observedBody.speedMagnitude * distanceScaleFactor / 1000).ToString() + "km/s";
 
+        UpdateSOI();
+
         if (sim.areConicsDrawn)
         {
-            soiText.text = "SOI: " + ((distanceScaleFactor * sim.FindSOIRadius(observedBody as CelestialBody))) + " km";
+            conicSOIText.text = "SOI: " + Math.Round(distanceScaleFactor * sim.FindSOIRadius(observedBody as CelestialBody) / 1000, 2) + " km";
             orbitProperties.SetActive(true);
             semiMajorAxisText.text = "a: " + Math.Round(sim.FindSemiMajorAxis(observedBody) * distanceScaleFactor / 1000, 2) + " km";
             periodText.text = "T: " + Math.Round(sim.FindPeriodForBody(observedBody), 2) + " s";
-            semiMajorAxisUnityScale.text = "A: " + (Math.Round(sim.FindSemiMajorAxis(observedBody), 5)) + " u";
+            perigeeText.text = "Per: " + Math.Round(observedBody.periapsisDistance * distanceScaleFactor / 1000, 2) + " km";
+            apogeeText.text = "Apo: " + Math.Round(observedBody.apoapsisDistance * distanceScaleFactor / 1000, 2)  + " km";
+
+            // Conic UI
+
+            conicRelativeTo.gameObject.SetActive(true);
+            conicRelativeToggle.gameObject.SetActive(true);
+            conicTimeStepSlider.gameObject.SetActive(true);
+            soiToggle.gameObject.SetActive(true);
+            ChangeConicLookaheadSlider();
+
+            conicRelativeTo.text = "Path relative to: " + sim.bodyRelativeTo.bodyName;
         }
         else
         {
-            soiText.text = "Turn on trajectories for SOI";
+            conicSOIText.text = "Turn on trajectories for more details";
             orbitProperties.SetActive(false);
+
+            // Conic UI
+
+            conicRelativeTo.gameObject.SetActive(false);
+            conicRelativeToggle.gameObject.SetActive(false);
+            conicTimeStepSlider.gameObject.SetActive(false);
+            soiToggle.gameObject.SetActive(false);
         }
 
         if (largestInfluencer != null) largestInfluencer.text = "Largest influencer: " + observedBody.largestInfluencer.bodyName;
-
-        if (sim.areConicsDrawn)
-        {
-            relativeTo.gameObject.SetActive(true);
-            relativeTo.text = "Path relative to: " + sim.bodyRelativeTo.bodyName;
-        }
-        else
-        {
-            relativeTo.gameObject.SetActive(false);
-        }
     }
 
     public void DeleteContext()
@@ -637,6 +666,28 @@ public class UIManager : MonoBehaviour
             xyzVelocity.SetActive(false);
             relativeVelocity.SetActive(true);
             relativeVelButton.GetComponentInChildren<TMP_Text>().text = "Relative Velocity";
+        }
+    }
+
+    public void ToggleSOI()
+    {
+        if (instantiatedSOI.activeInHierarchy)
+        {
+            instantiatedSOI.SetActive(false);
+        }
+        else
+        {
+            instantiatedSOI.SetActive(true);
+        }
+    }
+
+    private void UpdateSOI()
+    {
+        if(instantiatedSOI != null)
+        {
+            float radius = sim.FindSOIRadius(observedBody);
+            instantiatedSOI.transform.localScale = new Vector3(radius, radius, radius);
+            instantiatedSOI.transform.position = observedBody.gameObject.transform.position;
         }
     }
     #endregion

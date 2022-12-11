@@ -11,6 +11,7 @@ public class Simulation : MonoBehaviour
     public float timeBetweenConicCalculations;
     public float gravConstant = 0.0001f;
     public Material conicMaterial;
+    public Material periApogeeLineMaterial;
     [HideInInspector]
     public List<BaseBody> bodies = new List<BaseBody>();
     public float timeStep;
@@ -65,6 +66,11 @@ public class Simulation : MonoBehaviour
         }
 
         onChangePlanets.Invoke();
+
+        lineDebug.material = periApogeeLineMaterial;
+        lineDebug.positionCount = 2;
+        lineDebug.startWidth = 0.01f;
+        lineDebug.endWidth = 0.01f;
     }
 
     public void ToggleConics()
@@ -214,6 +220,7 @@ public class Simulation : MonoBehaviour
                 line.endColor = Color.yellow;
                 line.widthMultiplier = bodies[wantedBody].transform.localScale.x / 4;
                 // This loop actually draws a line based on the points that we saved earlier.
+
                 for (int i = 0; i < futurePoints[wantedBody].Length; i++)
                 {
                     line.positionCount = futurePoints[wantedBody].Length;
@@ -234,6 +241,7 @@ public class Simulation : MonoBehaviour
                 line.startColor = Color.yellow;
                 line.endColor = Color.yellow;
                 line.widthMultiplier = bodies[bodyIndex].transform.localScale.x / 4;
+
                 // This loop actually draws a line based on the points that we saved earlier.
                 for (int i = 0; i < futurePoints[bodyIndex].Length; i++)
                 {
@@ -328,9 +336,7 @@ public class Simulation : MonoBehaviour
             float lastDistance = 0;
             int counter = -1;
 
-            lineDebug.positionCount = 2;
-            lineDebug.startWidth = 0.2f;
-            lineDebug.endWidth = 0.1f;
+            
 
             Vector3 closestPoint = Vector3.zero;
             int closestPointIndex = 0;
@@ -346,12 +352,8 @@ public class Simulation : MonoBehaviour
                     closestPoint = point;
                     closestPointIndex = bodyPoints.ToList().IndexOf(point);
                 }
-                else
-                {
-                    break;
-                }
             }
-
+            body.periapsisDistance = closestPointDistance;
             lineDebug.SetPosition(0, closestPoint);
 
             // We want to find the next furthest point which will be in the current orbital period.
@@ -360,7 +362,22 @@ public class Simulation : MonoBehaviour
 
             Vector3 furthestPoint = Vector3.zero;
 
-            for (int i = counter; i < counter + (bodyPoints.Length - counter); i++)
+            //for (int i = counter; i < counter + (bodyPoints.Length - counter); i++)
+            //{
+            //    Vector3 point = bodyPoints[i];
+            //    float distance = Vector3.Distance(point, bodyRelativeTo.transform.position);
+            //    if (distance >= lastDistance)
+            //    {
+            //        lastDistance = distance;
+            //        furthestPoint = point;
+            //    }
+            //    else
+            //    {
+            //        break;
+            //    }
+            //}
+
+            for (int i = 0; i < bodyPoints.Length; i++)
             {
                 Vector3 point = bodyPoints[i];
                 float distance = Vector3.Distance(point, bodyRelativeTo.transform.position);
@@ -369,13 +386,11 @@ public class Simulation : MonoBehaviour
                     lastDistance = distance;
                     furthestPoint = point;
                 }
-                else
-                {
-                    break;
-                }
             }
 
-            float realDistance = Vector3.Distance(closestPoint, furthestPoint);
+            body.apoapsisDistance = lastDistance;
+
+            float realDistance = lastDistance - closestPointDistance;
 
             lineDebug.SetPosition(1, furthestPoint);
 
@@ -510,13 +525,13 @@ public class Simulation : MonoBehaviour
     // Function to default to a normal simulation
     private void NormalSimulation()
     {
-        timeStep = 0.001f;
+        timeStep = ui.simSpeedSlider.maxValue * 0.1f;
     }
 
     // Function to default to a fast simulation
     public void FastSimulation()
     {
-        timeStep = 0.5f;
+        timeStep = ui.simSpeedSlider.maxValue * 0.8f;
     }
 
     // Function that gets called when the slider for the speed gets changed

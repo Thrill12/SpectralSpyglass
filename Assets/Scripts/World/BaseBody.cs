@@ -28,6 +28,8 @@ public class BaseBody : MonoBehaviour
     UIManager ui;
 
     public float speedMagnitude;
+    public float periapsisDistance;
+    public float apoapsisDistance;
 
     // Start is called before the first frame update
     void Start()

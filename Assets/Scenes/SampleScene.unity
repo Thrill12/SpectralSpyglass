@@ -4127,14 +4127,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 857f673cbf3dcf94db0a3c5d0fa94699, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  timeBetweenConicCalculations: 100
   gravConstant: 0.00000006674
   conicMaterial: {fileID: 2100000, guid: cd51a37a5c2a77b4d87cb34ea8599d97, type: 2}
   periApogeeLineMaterial: {fileID: 2100000, guid: 221eb63df0c2ed3448500bdfef820109, type: 2}
   bodies: []
   timeStep: 0.001
   conicTimeStep: 10000
-  conicLookahead: 500
+  conicLookahead: 250
   conicRelative: 1
   bodyRelativeTo: {fileID: 0}
   areConicsDrawn: 0
@@ -11001,7 +11000,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1109046175}
   m_Direction: 0
   m_MinValue: 1
-  m_MaxValue: 5000
+  m_MaxValue: 50000
   m_WholeNumbers: 0
   m_Value: 5
   m_OnValueChanged:

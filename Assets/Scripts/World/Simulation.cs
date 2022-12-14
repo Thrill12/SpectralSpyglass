@@ -5,10 +5,10 @@ using Unity.Collections;
 using UnityEngine;
 using System.Threading;
 using System;
+using System.Diagnostics;
 
 public class Simulation : MonoBehaviour
 {
-    public float timeBetweenConicCalculations;
     public float gravConstant = 0.0001f;
     public Material conicMaterial;
     public Material periApogeeLineMaterial;
@@ -44,7 +44,6 @@ public class Simulation : MonoBehaviour
     LineRenderer lineDebug;
     private void Awake()
     {
-        Debug.Log("G is " + gravConstant);
         cam = FindObjectOfType<CameraController>();
         bodies = FindObjectsOfType<BaseBody>().ToList();
         ui = FindObjectOfType<UIManager>();
@@ -58,7 +57,6 @@ public class Simulation : MonoBehaviour
     public void Start()
     {
         bodyRelativeTo = bodies.ToList().OrderByDescending(b => b.mass).First();
-        Debug.Log(bodyRelativeTo.bodyName);
 
         for (int i = 0; i < bodies.Count; i++)
         {
@@ -87,6 +85,7 @@ public class Simulation : MonoBehaviour
 
     int apogeeIndex;
     int perigeeIndex;
+    Stopwatch watch = new Stopwatch();
     public void CreateConic()
     {
         #region Old Way
@@ -162,7 +161,10 @@ public class Simulation : MonoBehaviour
         // This for loop creates an array of "fake" bodies, which are simulated.
         // What differes these from the original bodies is that these are not rendered,
         // only their trails are displayed so that the user can see their trajectories
+        watch.Start();
         PrepareForConicCalculations(vBodies, ref refFrameIndex, ref referenceBodyInitialPosition);
+        watch.Stop();
+        UnityEngine.Debug.Log("Prepare for conic calculations took " + watch.ElapsedMilliseconds);
 
         // For loop that will calculate the position of bodies for x number of steps
         // This basically runs a second simulation, although not rendering it yet
@@ -174,13 +176,20 @@ public class Simulation : MonoBehaviour
                 refBodyPosition = vBodies[refFrameIndex].position;
             }
 
+            watch.Restart();
             CalculateFutureAcceleration();
+            watch.Stop();
             current = i;
 
+            watch.Restart();
             CalculateFuturePoints();
+            watch.Stop();
         }
 
+        watch.Restart();
         CalculateLineRenderer();
+        watch.Stop();
+        UnityEngine.Debug.Log("CalculateLineRenderer took " + watch.ElapsedMilliseconds);
 
         areConicsDrawn = true;
     }

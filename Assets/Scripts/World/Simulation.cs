@@ -16,7 +16,7 @@ public class Simulation : MonoBehaviour
     public List<BaseBody> bodies = new List<BaseBody>();
     public float timeStep;
     public float conicTimeStep = 1;
-    public int conicLookahead;
+    public int maxConicLookahead = 100000;
     public bool conicRelative = true;
 
     public BaseBody bodyRelativeTo;
@@ -26,7 +26,7 @@ public class Simulation : MonoBehaviour
 
     public bool areConicsDrawn = false;
 
-    public Vector3[][] futurePoints;
+    public List<List<Vector3>> futurePoints = new List<List<Vector3>>();
 
     List<VirtualBody> vBodies = new List<VirtualBody>();
     int refFrameIndex = 0;
@@ -40,7 +40,7 @@ public class Simulation : MonoBehaviour
 
     public event Action onChangePlanets;
 
-    public Vector3[][] ellipsePoints;
+    public List<List<Vector3>> ellipsePoints = new List<List<Vector3>>();
     LineRenderer lineDebug;
     private void Awake()
     {
@@ -67,8 +67,10 @@ public class Simulation : MonoBehaviour
 
         lineDebug.material = periApogeeLineMaterial;
         lineDebug.positionCount = 2;
-        lineDebug.startWidth = 0.01f;
-        lineDebug.endWidth = 0.01f;
+        lineDebug.startWidth = 1f;
+        lineDebug.endWidth = 1f;
+
+        UnityEngine.Debug.Log(FindVectorPercentDifference(new Vector3(1, 3, 5), new Vector3(5, 9, 6)));
     }
 
     public void ToggleConics()
@@ -86,6 +88,22 @@ public class Simulation : MonoBehaviour
     int apogeeIndex;
     int perigeeIndex;
     Stopwatch watch = new Stopwatch();
+
+    public float FindVectorPercentDifference(Vector3 vec1, Vector3 vec2)
+    {
+        float dX = vec2.x - vec1.x;
+        float dY = vec2.y - vec1.y;
+        float dZ = vec2.z - vec1.z;
+
+        float percX = dX / vec1.x;
+        float percY = dY / vec1.y;
+        float percZ = dZ / vec1.z;
+
+        float averagePerc = (percX + percY + percZ) / 3f;
+
+        return averagePerc;
+    }
+
     public void CreateConic()
     {
         #region Old Way
@@ -150,8 +168,6 @@ public class Simulation : MonoBehaviour
         //The simulation runs faster than the real simulation, giving the illusion of predicting the 
         //path of the solar system.
         vBodies = new VirtualBody[bodies.Where(x => x.fake == false).Count()].ToList();
-        futurePoints = new Vector3[bodies.Count][];
-        ellipsePoints = new Vector3[bodies.Count][];
 
         refFrameIndex = 0;
         referenceBodyInitialPosition = Vector3.zero;
@@ -166,9 +182,13 @@ public class Simulation : MonoBehaviour
         watch.Stop();
         UnityEngine.Debug.Log("Prepare for conic calculations took " + watch.ElapsedMilliseconds);
 
-        // For loop that will calculate the position of bodies for x number of steps
-        // This basically runs a second simulation, although not rendering it yet
-        for (int i = 0; i < conicLookahead; i++)
+        // Use an average percentage difference for the vector, calculated on the one at the beginning.
+        // We will know what step to top at when calculating the orbit based on a low enough percentage difference, 
+        // an arbitrary number.
+
+        // percentDiff = (thisVector - startVector) / ((thisVector + startVector) / 2)
+
+        for (int i = 0; i < vBodies.Count; i++)
         {
             refBodyPosition = Vector3.zero;
             if (conicRelative)
@@ -176,15 +196,39 @@ public class Simulation : MonoBehaviour
                 refBodyPosition = vBodies[refFrameIndex].position;
             }
 
-            watch.Restart();
-            CalculateFutureAcceleration();
-            watch.Stop();
-            current = i;
+            Vector3 start = vBodies[0].position;
+            Vector3 currentPosition = Vector3.positiveInfinity;
+            current = 0;
 
-            watch.Restart();
-            CalculateFuturePoints();
-            watch.Stop();
+            while(FindVectorPercentDifference(start, currentPosition) > 0.01f)
+            {
+                CalculateSpecificAcceleration(i);
+                Vector3 newPosition = CalculateFuturePointReturnVector(i);
+                currentPosition = newPosition;
+                UnityEngine.Debug.Log("Current percentage difference is " + FindVectorPercentDifference(start, currentPosition));
+                current += 1;
+            }
         }
+
+        // For loop that will calculate the position of bodies for x number of steps
+        // This basically runs a second simulation, although not rendering it yet
+        //for (int i = 0; i < maxConicLookahead; i++)
+        //{
+        //    refBodyPosition = Vector3.zero;
+        //    if (conicRelative)
+        //    {
+        //        refBodyPosition = vBodies[refFrameIndex].position;
+        //    }
+
+        //    watch.Restart();
+        //    CalculateFutureAcceleration();
+        //    watch.Stop();
+        //    current = i;
+
+        //    watch.Restart();
+        //    CalculateAllFuturePoints();
+        //    watch.Stop();
+        //}
 
         watch.Restart();
         CalculateLineRenderer();
@@ -201,7 +245,7 @@ public class Simulation : MonoBehaviour
             if (bodies[i].fake) continue;
 
             vBodies[i] = new VirtualBody(bodies[i]);
-            futurePoints[i] = new Vector3[conicLookahead];
+            //futurePoints[i] = new Vector3[maxConicLookahead];
 
             if (bodies[i] == bodyRelativeTo && conicRelative)
             {
@@ -230,10 +274,10 @@ public class Simulation : MonoBehaviour
                 line.widthMultiplier = bodies[wantedBody].transform.localScale.x / 4;
                 // This loop actually draws a line based on the points that we saved earlier.
 
-                for (int i = 0; i < futurePoints[wantedBody].Length; i++)
+                for (int i = 0; i < futurePoints[wantedBody].Count; i++)
                 {
-                    line.positionCount = futurePoints[wantedBody].Length;
-                    line.SetPositions(futurePoints[wantedBody]);
+                    line.positionCount = futurePoints[wantedBody].Count;
+                    line.SetPositions(futurePoints[wantedBody].ToArray());
 
                     //Debug.Log(line.positionCount + " pos " + line.enabled);
                 }
@@ -252,10 +296,10 @@ public class Simulation : MonoBehaviour
                 line.widthMultiplier = bodies[bodyIndex].transform.localScale.x / 4;
 
                 // This loop actually draws a line based on the points that we saved earlier.
-                for (int i = 0; i < futurePoints[bodyIndex].Length; i++)
+                for (int i = 0; i < futurePoints[bodyIndex].Count; i++)
                 {
-                    line.positionCount = futurePoints[bodyIndex].Length;
-                    line.SetPositions(futurePoints[bodyIndex]);
+                    line.positionCount = futurePoints[bodyIndex].Count;
+                    line.SetPositions(futurePoints[bodyIndex].ToArray());
 
                     //Debug.Log(line.positionCount + " pos " + line.enabled);
                 }
@@ -270,7 +314,7 @@ public class Simulation : MonoBehaviour
         {
             int bodyIndex = bodies.IndexOf(body);
 
-            Vector3[] thisFuture = futurePoints[bodyIndex];
+            Vector3[] thisFuture = futurePoints[bodyIndex].ToArray();
 
             float sumOfDistances = 0;
 
@@ -287,6 +331,13 @@ public class Simulation : MonoBehaviour
         {
             return 0;
         }
+    }
+
+    public float FindAreaOverTime(BaseBody body, float time)
+    {
+        // implement logic for working out the area. Will need to find the angle from the line
+        // where the body started in the time, and the current planet's position
+        return time;
     }
 
     public float GetMajorAxis(BaseBody body)
@@ -337,7 +388,7 @@ public class Simulation : MonoBehaviour
     {
         if(futurePoints != null)
         {
-            Vector3[] bodyPoints = futurePoints[bodies.IndexOf(body)];
+            List<Vector3> bodyPoints = futurePoints[bodies.IndexOf(body)];
 
             // My logic for working this out will be that I am looping through each point and finding the distance between it and the body.
             // The furthest point in this single rotation will be the one before the points start to get closer
@@ -345,13 +396,11 @@ public class Simulation : MonoBehaviour
             float lastDistance = 0;
             int counter = -1;
 
-            
-
             Vector3 closestPoint = Vector3.zero;
             int closestPointIndex = 0;
             float closestPointDistance = Mathf.Infinity;
 
-            for (int i = 0; i < bodyPoints.Length; i++)
+            for (int i = 0; i < bodyPoints.Count; i++)
             {
                 Vector3 point = bodyPoints[i];
                 float distance = Vector3.Distance(point, bodyRelativeTo.transform.position);
@@ -386,7 +435,7 @@ public class Simulation : MonoBehaviour
             //    }
             //}
 
-            for (int i = 0; i < bodyPoints.Length; i++)
+            for (int i = 0; i < bodyPoints.Count; i++)
             {
                 Vector3 point = bodyPoints[i];
                 float distance = Vector3.Distance(point, bodyRelativeTo.transform.position);
@@ -411,35 +460,51 @@ public class Simulation : MonoBehaviour
         }
     }
 
-    private void CalculateFutureAcceleration(/*VirtualBody[] vBodies*/)
+    private void CalculateFutureAcceleration()
     {
         // This loop updates the velocities of all the virtual bodies
         for (int j = 0; j < vBodies.Count; j++)
         {
-            vBodies[j].velocity += CalculateConicAcceleration(j, vBodies) * conicTimeStep;
+            CalculateSpecificAcceleration(j);
         }
     }
 
-    private void CalculateFuturePoints()
+    private void CalculateSpecificAcceleration(int j)
+    {
+        vBodies[j].velocity += CalculateConicAcceleration(j, vBodies) * conicTimeStep;
+    }
+
+    private void CalculateAllFuturePoints()
     {
         for (int j = 0; j < vBodies.Count; j++)
         {
-            VirtualBody body = vBodies[j];
-            Vector3 newBodyPos = vBodies[j].position + vBodies[j].velocity * conicTimeStep;
-            vBodies[j].position = newBodyPos;
-
-            if (conicRelative)
-            {
-                Vector3 frameOffset = refBodyPosition - referenceBodyInitialPosition;
-                newBodyPos -= frameOffset;
-            }
-            else if (conicRelative && current == refFrameIndex)
-            {
-                newBodyPos = referenceBodyInitialPosition;
-            }
-
-            futurePoints[j][current] = newBodyPos;
+            CalculateFuturePoint(j);
         }
+    }
+
+    private void CalculateFuturePoint(int j)
+    {
+        CalculateFuturePointReturnVector(j);
+    }
+
+    private Vector3 CalculateFuturePointReturnVector(int j)
+    {
+        VirtualBody body = vBodies[j];
+        Vector3 newBodyPos = vBodies[j].position + vBodies[j].velocity * conicTimeStep;
+        vBodies[j].position = newBodyPos;
+
+        if (conicRelative)
+        {
+            Vector3 frameOffset = refBodyPosition - referenceBodyInitialPosition;
+            newBodyPos -= frameOffset;
+        }
+        else if (conicRelative && current == refFrameIndex)
+        {
+            newBodyPos = referenceBodyInitialPosition;
+        }
+
+        futurePoints[j][current] = newBodyPos;
+        return newBodyPos;
     }
 
     // This deletes the line data for the currente orbit in order to be able to toggle

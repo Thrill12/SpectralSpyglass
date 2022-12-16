@@ -7658,8 +7658,8 @@ Light:
   m_Type: 2
   m_Shape: 0
   m_Color: {r: 0.9245283, g: 0.85338336, b: 0.7195621, a: 1}
-  m_Intensity: 2
-  m_Range: 1000
+  m_Intensity: 100
+  m_Range: 1588.58
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
   m_CookieSize: 10
@@ -10871,7 +10871,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1692226732}
   m_HandleRect: {fileID: 1692226731}
   m_Direction: 2
-  m_Value: 0
+  m_Value: 1
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:

@@ -200,7 +200,7 @@ public class Simulation : MonoBehaviour
             Vector3 currentPosition = Vector3.positiveInfinity;
             current = 0;
 
-            while(FindVectorPercentDifference(start, currentPosition) > 0.01f)
+            while(FindVectorPercentDifference(start, currentPosition) > 0.01f && current > 10)
             {
                 CalculateSpecificAcceleration(i);
                 Vector3 newPosition = CalculateFuturePointReturnVector(i);
@@ -489,22 +489,39 @@ public class Simulation : MonoBehaviour
 
     private Vector3 CalculateFuturePointReturnVector(int j)
     {
-        VirtualBody body = vBodies[j];
-        Vector3 newBodyPos = vBodies[j].position + vBodies[j].velocity * conicTimeStep;
-        vBodies[j].position = newBodyPos;
-
-        if (conicRelative)
+        if(j < futurePoints.Count)
         {
-            Vector3 frameOffset = refBodyPosition - referenceBodyInitialPosition;
-            newBodyPos -= frameOffset;
-        }
-        else if (conicRelative && current == refFrameIndex)
-        {
-            newBodyPos = referenceBodyInitialPosition;
-        }
+            if (current < futurePoints[j].Count)
+            {
+                VirtualBody body = vBodies[j];
+                Vector3 newBodyPos = vBodies[j].position + vBodies[j].velocity * conicTimeStep;
+                vBodies[j].position = newBodyPos;
 
-        futurePoints[j][current] = newBodyPos;
-        return newBodyPos;
+                if (conicRelative)
+                {
+                    Vector3 frameOffset = refBodyPosition - referenceBodyInitialPosition;
+                    newBodyPos -= frameOffset;
+                }
+                else if (conicRelative && current == refFrameIndex)
+                {
+                    newBodyPos = referenceBodyInitialPosition;
+                }
+
+                futurePoints[j][current] = newBodyPos;
+
+                return newBodyPos;
+            }
+            else
+            {
+                return Vector3.zero;
+            }
+        }
+        else
+        {
+            return Vector3.zero;
+        }
+        
+        
     }
 
     // This deletes the line data for the currente orbit in order to be able to toggle

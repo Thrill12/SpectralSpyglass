@@ -686,6 +686,7 @@ public class UIManager : MonoBehaviour
         if(instantiatedSOI != null)
         {
             float radius = sim.FindSOIRadius(observedBody);
+
             instantiatedSOI.transform.localScale = new Vector3(radius, radius, radius);
             instantiatedSOI.transform.position = observedBody.gameObject.transform.position;
         }

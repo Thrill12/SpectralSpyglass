@@ -1691,7 +1691,7 @@ LineRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 180358034}
   m_Enabled: 0
-  m_CastShadows: 1
+  m_CastShadows: 0
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
@@ -1774,7 +1774,7 @@ LineRenderer:
       m_Mode: 0
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
-    numCornerVertices: 1
+    numCornerVertices: 8
     numCapVertices: 4
     alignment: 0
     textureMode: 0
@@ -4132,8 +4132,8 @@ MonoBehaviour:
   periApogeeLineMaterial: {fileID: 2100000, guid: 221eb63df0c2ed3448500bdfef820109, type: 2}
   bodies: []
   timeStep: 0.001
-  conicTimeStep: 10000
-  conicLookahead: 250
+  conicTimeStep: 1000
+  maxConicLookahead: 100
   conicRelative: 1
   bodyRelativeTo: {fileID: 0}
   areConicsDrawn: 0
@@ -6570,7 +6570,7 @@ LineRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 947106620}
   m_Enabled: 0
-  m_CastShadows: 1
+  m_CastShadows: 0
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
@@ -6653,7 +6653,7 @@ LineRenderer:
       m_Mode: 0
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
-    numCornerVertices: 1
+    numCornerVertices: 8
     numCapVertices: 4
     alignment: 0
     textureMode: 0
@@ -8189,7 +8189,7 @@ LineRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1246201233}
   m_Enabled: 0
-  m_CastShadows: 1
+  m_CastShadows: 0
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
@@ -8272,7 +8272,7 @@ LineRenderer:
       m_Mode: 0
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
-    numCornerVertices: 1
+    numCornerVertices: 8
     numCapVertices: 4
     alignment: 0
     textureMode: 0
@@ -10619,7 +10619,7 @@ LineRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1594881785}
   m_Enabled: 0
-  m_CastShadows: 1
+  m_CastShadows: 0
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
@@ -10702,7 +10702,7 @@ LineRenderer:
       m_Mode: 0
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
-    numCornerVertices: 1
+    numCornerVertices: 8
     numCapVertices: 4
     alignment: 0
     textureMode: 0
@@ -11000,7 +11000,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1109046175}
   m_Direction: 0
   m_MinValue: 1
-  m_MaxValue: 50000
+  m_MaxValue: 100000
   m_WholeNumbers: 0
   m_Value: 5
   m_OnValueChanged:
@@ -13701,7 +13701,7 @@ LineRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2038874182}
   m_Enabled: 0
-  m_CastShadows: 1
+  m_CastShadows: 0
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
@@ -13784,7 +13784,7 @@ LineRenderer:
       m_Mode: 0
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
-    numCornerVertices: 1
+    numCornerVertices: 8
     numCapVertices: 4
     alignment: 0
     textureMode: 0

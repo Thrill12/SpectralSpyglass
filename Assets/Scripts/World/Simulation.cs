@@ -26,9 +26,9 @@ public class Simulation : MonoBehaviour
 
     public bool areConicsDrawn = false;
 
-    public List<List<Vector3>> futurePoints = new List<List<Vector3>>();
+    public Vector3[][] futurePoints;
 
-    List<VirtualBody> vBodies = new List<VirtualBody>();
+    VirtualBody[] vBodies;
     int refFrameIndex = 0;
     Vector3 referenceBodyInitialPosition = Vector3.zero;
     int current;
@@ -44,8 +44,6 @@ public class Simulation : MonoBehaviour
     LineRenderer lineDebug;
     private void Awake()
     {
-        futurePoints = new List<List<Vector3>>();
-
         cam = FindObjectOfType<CameraController>();
         bodies = FindObjectsOfType<BaseBody>().ToList();
         ui = FindObjectOfType<UIManager>();
@@ -110,14 +108,9 @@ public class Simulation : MonoBehaviour
 
     private void SetupVBodies()
     {
-        vBodies.Clear();
-        futurePoints.Clear();
-        foreach (var item in bodies.Where(x => x.fake == false))
-        {
-            vBodies.Add(new VirtualBody(item));
-            futurePoints.Add(new List<Vector3>());
-            UnityEngine.Debug.Log("Added " + item.bodyName + " to vBodies");
-        }
+        futurePoints = new Vector3[bodies.Count][];
+        vBodies = new VirtualBody[bodies.Count];
+        
         refFrameIndex = 0;
         referenceBodyInitialPosition = Vector3.zero;
         PrepareForConicCalculations(vBodies, ref refFrameIndex, ref referenceBodyInitialPosition);
@@ -179,6 +172,7 @@ public class Simulation : MonoBehaviour
         //    mirrorBody.UpdatePosition(1f);
         //}
         #endregion
+        SetupVBodies();
         int wantedBody = bodies.ToList().IndexOf(cam.currentTracking);
 
         //Instead of trying to implement a really complicated algorithm and trying to solve
@@ -193,51 +187,56 @@ public class Simulation : MonoBehaviour
         // This for loop creates an array of "fake" bodies, which are simulated.
         // What differes these from the original bodies is that these are not rendered,
         // only their trails are displayed so that the user can see their trajectories        
-
+        // However, there is a flaw in his way of displaying orbits. Currently, there is no way of 
+        // "locking" the orbit display so that it only displays one full orbit, instead it 
+        // bleeds into the next orbit and next and so on, creating a confusing muddle of lines.
+        //
+        // This is in someway alleviated by the exclusive mode we have where we only display the orbits of the planet
+        // we are looking at, but when trying to calculate orbital properties we need to find another way of displaying the orbits.
+        //
         // Use an average percentage difference for the vector, calculated on the one at the beginning.
         // We will know what step to top at when calculating the orbit based on a low enough percentage difference, 
         // an arbitrary number.
 
-        // percentDiff = (thisVector - startVector) / ((thisVector + startVector) / 2)
-
-        //UnityEngine.Debug.Log(vBodies.Count);
-
-        for (int i = 0; i < vBodies.Count; i++)
+        for (int conicStep = 0; conicStep < maxConicLookahead; conicStep++)
         {
-            refBodyPosition = Vector3.zero;
+            Vector3 referenceBodyPosition;
             if (conicRelative)
             {
-                refBodyPosition = vBodies[refFrameIndex].position;
+                referenceBodyPosition = vBodies[refFrameIndex].position;
+            }
+            else
+            {
+                referenceBodyPosition = Vector3.zero;
             }
 
-            Vector3 start = vBodies[i].position;
-            Vector3 currentPosition = bodies.First(x => x.bodyName == vBodies[i].bodyName).transform.position;
-            current = 0;
-            //UnityEngine.Debug.Log(vBodies.Count);
-
-            do
+            for (int j = 0; j < vBodies.Length; j++)
             {
-                CalculateSpecificAcceleration(i);
-                Vector3 newPosition = CalculateFuturePointReturnVector(i);
-                //UnityEngine.Debug.Log("Element " + i + " added a position");
-                currentPosition = newPosition;
-                //UnityEngine.Debug.Log("Current percentage difference is " + FindVectorPercentDifference(start, currentPosition));
-                current += 1;
-            } while (current <= 50 || Vector2.Distance(start, currentPosition) > 1f);
+                vBodies[j].velocity += CalculateConicAcceleration(j, vBodies) * conicTimeStep;
+            }
 
-            //while(Vector3.Distance(start, currentPosition) > 0.01f || current <= 50)
-            //{
-            //    CalculateSpecificAcceleration(i);
-            //    Vector3 newPosition = CalculateFuturePointReturnVector(i);
-            //    UnityEngine.Debug.Log("Element " + i + " added a position");
-            //    currentPosition = newPosition;
-            //    UnityEngine.Debug.Log("Current percentage difference is " + FindVectorPercentDifference(start, currentPosition));
-            //    current += 1;
-            //}
+            for (int i = 0; i < vBodies.Length; i++)
+            {
+                Vector3 newPos = vBodies[i].position + vBodies[i].velocity * conicTimeStep;
+                vBodies[i].position = newPos;
+                if (conicRelative)
+                {
+                    var refFrameOffset = referenceBodyPosition - referenceBodyInitialPosition;
+                    newPos -= refFrameOffset;
+                }
+
+                if(conicRelative && i == refFrameIndex)
+                {
+                    newPos = referenceBodyInitialPosition;
+                }
+
+                futurePoints[i][conicStep] = newPos;
+            }
         }
 
-        // For loop that will calculate the position of bodies for x number of steps
-        // This basically runs a second simulation, although not rendering it yet
+        //For loop that will calculate the position of bodies for x number of steps
+        //This basically runs a second simulation, although not rendering it yet
+
         //for (int i = 0; i < maxConicLookahead; i++)
         //{
         //    refBodyPosition = Vector3.zero;
@@ -249,7 +248,7 @@ public class Simulation : MonoBehaviour
         //    watch.Restart();
         //    CalculateFutureAcceleration();
         //    watch.Stop();
-        //    current = i;
+        //    //current = i;
 
         //    watch.Restart();
         //    CalculateAllFuturePoints();
@@ -264,17 +263,16 @@ public class Simulation : MonoBehaviour
         areConicsDrawn = true;
     }
 
-    private void PrepareForConicCalculations(List<VirtualBody> vBodies, ref int refFrameIndex, ref Vector3 referenceBodyInitialPosition)
+    private void PrepareForConicCalculations(VirtualBody[] vBodies, ref int refFrameIndex, ref Vector3 referenceBodyInitialPosition)
     {
-        UnityEngine.Debug.Log(vBodies.Count + " is the vbodies count in prepare");
-        for (int i = 0; i < vBodies.Count; i++)
+        UnityEngine.Debug.Log(vBodies.Length + " is the vbodies count in prepare");
+        for (int i = 0; i < vBodies.Length; i++)
         {
             UnityEngine.Debug.Log("Accessing vbodies index " + i);
             if (bodies[i].fake) continue;
 
-            //vBodies[i] = new VirtualBody(bodies[i]);
-            ////futurePoints[i] = new Vector3[maxConicLookahead];
-            //futurePoints[i] = new List<Vector3>();
+            vBodies[i] = new VirtualBody(bodies[i]);
+            futurePoints[i] = new Vector3[maxConicLookahead];
 
             if (bodies[i] == bodyRelativeTo && conicRelative)
             {
@@ -292,7 +290,7 @@ public class Simulation : MonoBehaviour
         if (exclusive)
         {
             int wantedBody = bodies.ToList().IndexOf(ui.observedBody);
-            for (int bodyIndex = 0; bodyIndex < vBodies.Count; bodyIndex++)
+            for (int bodyIndex = 0; bodyIndex < vBodies.Length; bodyIndex++)
             {
                 LineRenderer line = lineRenderers[wantedBody];
                 line.enabled = true;
@@ -303,9 +301,9 @@ public class Simulation : MonoBehaviour
                 line.widthMultiplier = bodies[wantedBody].transform.localScale.x / 4;
                 // This loop actually draws a line based on the points that we saved earlier.
 
-                for (int i = 0; i < futurePoints[wantedBody].Count; i++)
+                for (int i = 0; i < futurePoints[wantedBody].Length; i++)
                 {
-                    line.positionCount = futurePoints[wantedBody].Count;
+                    line.positionCount = futurePoints[wantedBody].Length;
                     line.SetPositions(futurePoints[wantedBody].ToArray());
 
                     //Debug.Log(line.positionCount + " pos " + line.enabled);
@@ -314,7 +312,7 @@ public class Simulation : MonoBehaviour
         }
         else
         {
-            for (int bodyIndex = 0; bodyIndex < vBodies.Count; bodyIndex++)
+            for (int bodyIndex = 0; bodyIndex < vBodies.Length; bodyIndex++)
             {
                 LineRenderer line = lineRenderers[bodyIndex];
                 line.enabled = true;
@@ -325,10 +323,10 @@ public class Simulation : MonoBehaviour
                 line.widthMultiplier = bodies[bodyIndex].transform.localScale.x / 4;
 
                 // This loop actually draws a line based on the points that we saved earlier.
-                for (int i = 0; i < futurePoints[bodyIndex].Count; i++)
+                for (int i = 0; i < futurePoints[bodyIndex].Length; i++)
                 {
-                    line.positionCount = futurePoints[bodyIndex].Count;
-                    line.SetPositions(futurePoints[bodyIndex].ToArray());
+                    line.positionCount = futurePoints[bodyIndex].Length;
+                    line.SetPositions(futurePoints[bodyIndex]);
 
                     //Debug.Log(line.positionCount + " pos " + line.enabled);
                 }
@@ -417,11 +415,9 @@ public class Simulation : MonoBehaviour
     {
         if(futurePoints != null && futurePoints != null)
         {
-            List<Vector3> bodyPoints = new List<Vector3>();
+            UnityEngine.Debug.Log("Trying to access index " + bodies.IndexOf(body) + " when max index is " + futurePoints.Length);
 
-            UnityEngine.Debug.Log("Trying to access index " + bodies.IndexOf(body) + " when max index is " + futurePoints.Count);
-
-            bodyPoints = futurePoints[bodies.IndexOf(body)];
+            Vector3[] bodyPoints = futurePoints[bodies.IndexOf(body)];
 
             // My logic for working this out will be that I am looping through each point and finding the distance between it and the body.
             // The furthest point in this single rotation will be the one before the points start to get closer
@@ -433,7 +429,7 @@ public class Simulation : MonoBehaviour
             int closestPointIndex = 0;
             float closestPointDistance = Mathf.Infinity;
 
-            for (int i = 0; i < bodyPoints.Count; i++)
+            for (int i = 0; i < bodyPoints.Length; i++)
             {
                 Vector3 point = bodyPoints[i];
                 float distance = Vector3.Distance(point, bodyRelativeTo.transform.position);
@@ -468,7 +464,7 @@ public class Simulation : MonoBehaviour
             //    }
             //}
 
-            for (int i = 0; i < bodyPoints.Count; i++)
+            for (int i = 0; i < bodyPoints.Length; i++)
             {
                 Vector3 point = bodyPoints[i];
                 float distance = Vector3.Distance(point, bodyRelativeTo.transform.position);
@@ -493,23 +489,9 @@ public class Simulation : MonoBehaviour
         }
     }
 
-    private void CalculateFutureAcceleration()
-    {
-        // This loop updates the velocities of all the virtual bodies
-        for (int j = 0; j < vBodies.Count; j++)
-        {
-            CalculateSpecificAcceleration(j);
-        }
-    }
-
-    private void CalculateSpecificAcceleration(int j)
-    {
-        vBodies[j].velocity += CalculateConicAcceleration(j, vBodies) * conicTimeStep;
-    }
-
     private void CalculateAllFuturePoints()
     {
-        for (int j = 0; j < vBodies.Count; j++)
+        for (int j = 0; j < vBodies.Length; j++)
         {
             CalculateFuturePoint(j);
         }
@@ -522,12 +504,12 @@ public class Simulation : MonoBehaviour
 
     private Vector3 CalculateFuturePointReturnVector(int j)
     {
-        if(j < futurePoints.Count)
+        if(j < futurePoints.Length)
         {
-            if (current < futurePoints[j].Count)
+            int current = futurePoints[j].Length;
+
+            if(current < maxConicLookahead)
             {
-                UnityEngine.Debug.Log("calculating point " + current + " in body " + j);
-                VirtualBody body = vBodies[j];
                 Vector3 newBodyPos = vBodies[j].position + vBodies[j].velocity * conicTimeStep;
                 vBodies[j].position = newBodyPos;
 
@@ -541,7 +523,7 @@ public class Simulation : MonoBehaviour
                     newBodyPos = referenceBodyInitialPosition;
                 }
 
-                futurePoints[j].Add(newBodyPos);
+                futurePoints[j][current] = newBodyPos;
 
                 return newBodyPos;
             }
@@ -554,8 +536,6 @@ public class Simulation : MonoBehaviour
         {
             return Vector3.zero;
         }
-        
-        
     }
 
     // This deletes the line data for the currente orbit in order to be able to toggle
@@ -581,10 +561,10 @@ public class Simulation : MonoBehaviour
     }
 
     // Function to calculate the acceleration of a single body
-    Vector3 CalculateConicAcceleration(int j, List<VirtualBody> vBodies)
+    Vector3 CalculateConicAcceleration(int j, VirtualBody[] vBodies)
     {
         Vector3 acceleration = Vector3.zero;
-        for (int i = 0; i < vBodies.Count; i++)
+        for (int i = 0; i < vBodies.Length; i++)
         {
             if (i == j) continue;
 

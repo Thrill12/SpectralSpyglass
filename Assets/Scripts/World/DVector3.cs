@@ -3,6 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Class that I was going to use to try and get around the effects of floating point precision errors in unity, however
+/// unity does not allow you to use another type of location positioning for its positions, so I have had to make do with floats.
+/// This is still here however because it was a significant step in me understanding some of the shortcomings of doing this 
+/// in a proprietary engine.
+/// </summary>
 public class DVector3
 {
     public double x { get; private set; }

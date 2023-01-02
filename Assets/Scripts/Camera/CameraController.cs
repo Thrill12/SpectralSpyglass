@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
+/// <summary>
+/// Script for managing the camera aspects of the simulation, and allowing us to travel within space
+/// </summary>
 public class CameraController : MonoBehaviour
 {
     Simulation sim;
@@ -10,14 +13,19 @@ public class CameraController : MonoBehaviour
     public Camera cam;
     UIManager ui;
 
+    // This is an empty gameObject that is at the centre of the body we are tracking. To rotate the camera in orbit mode, we simply rotate
+    // this object when the camera is a child of it so we get a much easier system for rotating the camera around a planet
     [HideInInspector] public GameObject rotateTarget;
+    // The sensitivity at which we move the camera around in orbit mode
     public float moveSens = 15;
 
     int currIndex = 0;
-
+    // Variable to keep track of whether we are in free cam mode or not
     public bool freeCam = false;
+    // The move speed of camera in free cam mode
     public float moveSpeed = 1;
 
+    // These variables hold the min and max speed of the camera in free cam mode
     public float minSpeed = 0.001f;
     public float maxSpeed = 0.01f;
 
@@ -38,8 +46,10 @@ public class CameraController : MonoBehaviour
     // Unity Loop which runs on every frame
     private void Update()
     {
+        // This allows us to rotate around the observed body when in orbit mode
         HandleOrbit();
 
+        // This enables us to turn on free cam mode and explore space freely.
         if (Input.GetMouseButtonDown(1) && !EventSystem.current.IsPointerOverGameObject())
         {
             ui.DeleteContext();
@@ -53,6 +63,10 @@ public class CameraController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Simple function that just translates the position of the camera each frame by whatever inputs we have.
+    /// WASDQE for the movement of the camera.
+    /// </summary>
     private void FreeCamMove()
     {
         transform.parent = null;
@@ -62,37 +76,16 @@ public class CameraController : MonoBehaviour
         transform.Translate(Vector3.right * moveSpeed * Input.GetAxis("Horizontal"), Space.Self);
         transform.Translate(Vector3.forward * moveSpeed * Input.GetAxis("UpDown"), Space.Self);
 
-        float scrlWheel = Input.GetAxis("Mouse ScrollWheel") / 120;
+        // Instead of zooming in with the mouse wheel, in free cam we increase the speed
+        float scrlWheel = Input.GetAxis("Mouse ScrollWheel") / 60;
         moveSpeed = Mathf.Clamp(moveSpeed + scrlWheel, minSpeed, maxSpeed);
     }
 
-    // Function for zooming in the camera. Another alternative was to use the FOV of the camera,
-    // However I ended up using the position of it because it didn't alter the view of the planets
-    // like the FOV would.
-    //private void HandleZoom()
-    //{
-    //    float scrlWheel = Input.GetAxis("Mouse ScrollWheel");
-
-    //    float zoomVector = -scrlWheel * Vector3.Distance(transform.position, transform.parent.position);
-
-    //    Vector3 dir = transform.position - transform.parent.position;
-
-    //    transform.Translate(dir.normalized * zoomVector);
-    //}
-
-    //// OLD Function for handling the orbit of the camera around a body by dragging the mouse.
-    //private void HandleOrbit()
-    //{
-    //    float x = Input.GetAxis("Horizontal");
-    //    float y = Input.GetAxis("Vertical");
-
-    //    transform.RotateAround(transform.parent.position, transform.parent.forward, y * orbitSpeed);
-    //    transform.RotateAround(transform.parent.position, transform.parent.up, x * orbitSpeed);
-    //}
-
-    // Handling rotation around the current observed body. I think this
-    // will need to change eventually to have more control - maybe implement
-    // a PIP sphere with rotation circles in 3 axis for easier rotation.
+    /// <summary>
+    /// Handling rotation around the current observed body. I think this
+    /// can be extended to have more control - maybe implement
+    /// a PIP sphere with rotation circles in 3 axis for easier rotation.
+    /// </summary>
     private void HandleOrbit()
     {
         if (!EventSystem.current.IsPointerOverGameObject() && !freeCam)
@@ -132,6 +125,9 @@ public class CameraController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// This allows us to move to the body in the previous position in the array, and also accounts for reaching the end/beginning of the array
+    /// </summary>
     public void PrevInArray()
     {
         currIndex--;
@@ -140,6 +136,9 @@ public class CameraController : MonoBehaviour
         ChangeParent();
     }
 
+    /// <summary>
+    /// This allows us to move to the body in the next position in the array, and also accounts for reaching the end/beginning of the array
+    /// </summary>
     public void NextInArray()
     {
         currIndex++;
@@ -148,7 +147,9 @@ public class CameraController : MonoBehaviour
         ChangeParent();
     }
 
-    // Function to move the index from the bottom to the end if user got to the start of the array
+    /// <summary>
+    /// Function to move the index from the bottom to the end if user got to the start of the array
+    /// </summary>
     private void CheckOverflowArrayLT()
     {
         if (currIndex > sim.bodies.Count - 1)
@@ -157,7 +158,9 @@ public class CameraController : MonoBehaviour
         }
     }
 
-    // Function to move the index from the bottom to the end if user got to the start of the array
+    /// <summary>
+    /// Function to move the index from the bottom to the end if user got to the start of the array
+    /// </summary>
     private void CheckOverflowArrayGT()
     {
         if (currIndex < 0)
@@ -166,7 +169,9 @@ public class CameraController : MonoBehaviour
         }
     }
 
-    // Changes the parent of the camera so that it follows another planet
+    /// <summary>
+    /// Changes the parent of the camera so that it follows another planet
+    /// </summary>
     private void ChangeParent()
     {
         ui.DeleteContext();
@@ -189,6 +194,10 @@ public class CameraController : MonoBehaviour
         sim.DeleteExistingOrbits();
     }
 
+    /// <summary>
+    /// Simply changes the parent of the camera, which allows the camera to move alongside its parent and be stuck in a relative position relative to it
+    /// </summary>
+    /// <param name="index"></param>
     public void ChangeParent(int index)
     {
         currIndex = index;

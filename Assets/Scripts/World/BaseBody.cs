@@ -4,29 +4,37 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+/// <summary>
+/// The Base class for objects in the system. This needs to be here because we need common functions for all of the bodies in the system.
+/// </summary>
+// The require component here simply adds the missing components if the object doesn't have them, as they are all needed for the simulation.
 [RequireComponent(typeof(Rigidbody), typeof(TrailRenderer), typeof(LineRenderer))]
 public class BaseBody : MonoBehaviour
 {
+    // We need a reference of the simulation script in order to access the gravitation constant and any other helpful utility functions we may have in the future
     public Simulation sim;
     [SerializeField] public float mass;
     [SerializeField] public string bodyName;
     
+    // The body, other than itself, that applies the most force to this object
     public BaseBody largestInfluencer;
 
     // Unity component which contains functions to set and get the position of an object
     [HideInInspector] public Rigidbody rb;
-
+    // Variable to hold the calculated current velocity of the planet - this gets changed whenever it gets updated going over all of the other planets in the system
     public Vector3 currentVelocity;
+    // Variable to hold the past trail of the object.
     public TrailRenderer trail;
 
+    // This is set as fake whenever we don't want a body to affect or be affected by the simulation at all
     public bool fake = false;
 
-    [HideInInspector] public Vector3 addedVelocity;
-
+    // Variable to easily calculate the largest influencer, which is the body that applies the most force on the body
     public List<BodyVec> orderedBodies = new List<BodyVec>();
 
     UIManager ui;
 
+    // Small variables used to hold details about its orbit, speed etc.
     public float speedMagnitude;
     public float periapsisDistance;
     public float apoapsisDistance;
@@ -48,12 +56,9 @@ public class BaseBody : MonoBehaviour
         trail.endWidth = 0;
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
+    /// <summary>
+    /// Simple formula to find the resulting magnitude of velocity from its 3D vector
+    /// </summary>
     public void CalculateSpeedMagnitude()
     {
         float x = currentVelocity.x;
@@ -63,7 +68,12 @@ public class BaseBody : MonoBehaviour
         speedMagnitude = Mathf.Sqrt(x * x + y * y + z * z);
     }
 
-    // Function to calculate the velocity needed to be applied to the object per physics tick
+    /// <summary>
+    /// Function to calculate the velocity needed to be applied to the object per physics tick.
+    /// This uses Newton's Gravitational Formula, F = -(GMm)/(r^2)
+    /// </summary>
+    /// <param name="bodies"></param>
+    /// <param name="timeStep"></param>
     public void UpdateVelocity(List<BaseBody> bodies, float timeStep)
     {
         if (fake) return;
@@ -108,7 +118,10 @@ public class BaseBody : MonoBehaviour
         largestInfluencer = orderedBodies[0].body;
     }
 
-    // Function to move the body to its correct position based on its current position and its velocity
+    /// <summary>
+    /// Function to move the body to its correct position based on its current position and its velocity
+    /// </summary>
+    /// <param name="timeStep"></param>
     public void UpdatePosition(float timeStep)
     {
         if (!fake)
@@ -118,11 +131,20 @@ public class BaseBody : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// This is the function that gets used when adding velocity from the increment buttons
+    /// </summary>
+    /// <param name="vel"></param>
     public void SetVelocity(Vector3 vel)
     {
         currentVelocity += vel - currentVelocity;
     }
 
+    /// <summary>
+    /// This adds the specified amount of speed in a specified direction - used in the "rocket science" components of adding velocity
+    /// </summary>
+    /// <param name="magnitude"></param>
+    /// <param name="direction"></param>
     public void AddVelocity(float magnitude, RelativeDirection direction)
     {
         Vector3 dir = FindVectorFromRelativeDirection(direction);
@@ -130,12 +152,18 @@ public class BaseBody : MonoBehaviour
         SetVelocity(combined + currentVelocity);
     }
 
+    /// <summary>
+    /// Returns a Vector3 from our RelativeDirection enum, allowing us where in "rocket science" terms to apply the velocity
+    /// </summary>
+    /// <param name="direction"></param>
+    /// <returns></returns>
     private Vector3 FindVectorFromRelativeDirection(RelativeDirection direction)
     {
         //transform.right -> radial out
         //-transform.right -> radial in
         //transform.up -> normal
         //-transform.up -> antinormal
+        //"Progrades"
         switch (direction)
         {
             case RelativeDirection.Prograde:
@@ -155,6 +183,9 @@ public class BaseBody : MonoBehaviour
     }
 }
 
+/// <summary>
+/// The enum used for holding the different "rocket science" velocity components
+/// </summary>
 public enum RelativeDirection
 {
     Prograde,

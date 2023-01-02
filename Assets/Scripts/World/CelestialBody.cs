@@ -4,6 +4,11 @@ using System.Linq;
 using UnityEngine;
 
 
+/// <summary>
+/// Subclass of the BaseBody class, it is used for large celestial bodies that are spherical in nature, due to their radius.
+/// I split up the radius into this different class in case I wanted some non spherical objects in the simulation, such as a space station, however
+/// that is out of the scope of my current coursework project.
+/// </summary>
 public class CelestialBody : BaseBody
 {
     [SerializeField] public float radius;
@@ -21,9 +26,10 @@ public class CelestialBody : BaseBody
     }
 }
 
-// A small class used for the ordered list of bodies. Made this
-// so that we could easily sort the bodies by their force, but might 
-// end up changing this.
+/// <summary>
+/// A small class used for the ordered list of bodies. Made this
+/// so that we could easily sort the bodies by their force.
+/// </summary>
 [System.Serializable]
 public struct BodyVec
 {

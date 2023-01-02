@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
+/// <summary>
+/// Class to handle the zooming of the camera when in orbit mode
+/// </summary>
 public class CameraZoom : MonoBehaviour
 {
     public float minFov = 15f;
@@ -20,9 +23,9 @@ public class CameraZoom : MonoBehaviour
 
     void Update()
     {
-        // Currently doing zoom with FOV however need to change this due to distorting
+        // Currently doing zoom with FOV however this could ve improved due to distorting
         // user's vision. It might give users sickness as I have got feedback that
-        // there can sometimes be a fisheye lens effect which causes the sickness.
+        // there can sometimes be a fisheye lens effect which isn't pleasant to look at.
         if (!EventSystem.current.IsPointerOverGameObject() && !camCon.freeCam)
         {
             float fov = Camera.main.fieldOfView;

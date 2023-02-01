@@ -36,4 +36,9 @@ public class PlanetButtonHolder : MonoBehaviour, IPointerClickHandler
             
         }
     }
+
+    private void Update()
+    {
+        GetComponentInChildren<TMP_Text>().text = FindObjectOfType<Simulation>().bodies[bodyIndex].bodyName;
+    }
 }

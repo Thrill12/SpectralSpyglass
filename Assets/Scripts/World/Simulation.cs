@@ -594,6 +594,8 @@ public class Simulation : MonoBehaviour
 
             lineDebug.SetPosition(1, furthestPoint);
 
+            lineDebug.enabled = false;
+
             return realDistance / 2;
         }
         else

@@ -552,42 +552,95 @@ public class Simulation : MonoBehaviour
         {
             UnityEngine.Debug.Log("Trying to access index " + bodies.IndexOf(body) + " when max index is " + futurePoints.Length);
 
+        //    Vector3[] bodyPoints = futurePoints[bodies.IndexOf(body)];
+
+        //    // My logic for working this out will be that I am looping through each point and finding the distance between it and the body.
+        //    // The furthest point in this single rotation will be the one before the points start to get closer
+
+        //    float lastDistance = 0;
+        //    int counter = -1;
+
+        //    Vector3 closestPoint = Vector3.zero;
+        //    int closestPointIndex = 0;
+        //    float closestPointDistance = Mathf.Infinity;
+
+        //    for (int i = 0; i < bodyPoints.Length; i++)
+        //    {
+        //        Vector3 point = bodyPoints[i];
+        //        float distance = Vector3.Distance(point, bodyRelativeTo.transform.position);
+        //        if (distance < closestPointDistance)
+        //        {
+        //            closestPointDistance = distance;
+        //            closestPoint = point;
+        //            closestPointIndex = bodyPoints.ToList().IndexOf(point);
+        //        }
+        //    }
+        //    body.periapsisDistance = closestPointDistance;
+        //    lineDebug.SetPosition(0, closestPoint);
+
+        //    // We want to find the next furthest point which will be in the current orbital period.
+        //    // If we didn't start from here, we might find some other furthest point in the next orbit or something.
+        //    counter = closestPointIndex;
+
+        //    Vector3 furthestPoint = Vector3.zero;
+
+        //    for (int i = 0; i < bodyPoints.Length; i++)
+        //    {
+        //        Vector3 point = bodyPoints[i];
+        //        float distance = Vector3.Distance(point, bodyRelativeTo.transform.position);
+        //        if (distance >= lastDistance)
+        //        {
+        //            lastDistance = distance;
+        //            furthestPoint = point;
+        //        }
+        //    }
+
+        //    body.apoapsisDistance = lastDistance;
+
+        //    float realDistance = lastDistance - closestPointDistance;
+
+        //    lineDebug.SetPosition(1, furthestPoint);
+
+        //    lineDebug.enabled = false;
+
+        //    return realDistance / 2;
+        //}
+        //else
+        //{
+        //    return 0;
+        //}
+
+        // To find the semi major axis, we take the distance from the center of the ellipse to the point furthest on its orbit.
+        // To find the center of the ellipse, we can take an average of all of the X, Y and Z coordinates.
+
+        if(futurePoints != null)
+        {
             Vector3[] bodyPoints = futurePoints[bodies.IndexOf(body)];
 
-            // My logic for working this out will be that I am looping through each point and finding the distance between it and the body.
-            // The furthest point in this single rotation will be the one before the points start to get closer
+            float xSum = 0, ySum = 0, zSum = 0;
+            float xAvg = 0, yAvg = 0, zAvg = 0;
 
-            float lastDistance = 0;
-            int counter = -1;
-
-            Vector3 closestPoint = Vector3.zero;
-            int closestPointIndex = 0;
-            float closestPointDistance = Mathf.Infinity;
-
-            for (int i = 0; i < bodyPoints.Length; i++)
+            foreach (Vector3 item in bodyPoints)
             {
-                Vector3 point = bodyPoints[i];
-                float distance = Vector3.Distance(point, bodyRelativeTo.transform.position);
-                if (distance < closestPointDistance)
-                {
-                    closestPointDistance = distance;
-                    closestPoint = point;
-                    closestPointIndex = bodyPoints.ToList().IndexOf(point);
-                }
+                xSum += item.x;
+                ySum += item.y;
+                zSum += item.z;
             }
-            body.periapsisDistance = closestPointDistance;
-            lineDebug.SetPosition(0, closestPoint);
 
-            // We want to find the next furthest point which will be in the current orbital period.
-            // If we didn't start from here, we might find some other furthest point in the next orbit or something.
-            counter = closestPointIndex;
+            xAvg = xSum / bodyPoints.Length;
+            yAvg = ySum / bodyPoints.Length;
+            zAvg = zSum / bodyPoints.Length;
 
-            Vector3 furthestPoint = Vector3.zero;
+            Vector3 centerPoint = new Vector3(xAvg, yAvg, zAvg);
+            body.pointOfOrbitCentre = centerPoint;
+            float lastDistance = 0;
+
+            Vector3 furthestPoint = centerPoint;
 
             for (int i = 0; i < bodyPoints.Length; i++)
             {
                 Vector3 point = bodyPoints[i];
-                float distance = Vector3.Distance(point, bodyRelativeTo.transform.position);
+                float distance = Vector3.Distance(point, centerPoint);
                 if (distance >= lastDistance)
                 {
                     lastDistance = distance;
@@ -595,20 +648,57 @@ public class Simulation : MonoBehaviour
                 }
             }
 
-            body.apoapsisDistance = lastDistance;
+            body.furthestPointFromCentre = furthestPoint;
 
-            float realDistance = lastDistance - closestPointDistance;
-
+            lineDebug.SetPosition(0, centerPoint);
             lineDebug.SetPosition(1, furthestPoint);
+            lineDebug.enabled = true;
 
-            lineDebug.enabled = false;
-
-            return realDistance / 2;
+            return lastDistance;
         }
         else
         {
             return 0;
         }
+    }
+
+    public void CalculateApoapsis(BaseBody body)
+    {
+        float lastDistance = 0;
+        Vector3[] bodyPoints = futurePoints[bodies.IndexOf(body)];
+
+        Vector3 furthestPoint = body.transform.position;
+
+        for (int i = 0; i < bodyPoints.Length; i++)
+        {
+            Vector3 point = bodyPoints[i];
+            float distance = Vector3.Distance(point, bodyRelativeTo.transform.position);
+            if (distance >= lastDistance)
+            {
+                lastDistance = distance;
+                furthestPoint = point;
+            }
+        }
+
+        body.apoapsisDistance = lastDistance;
+    }
+
+    public void CalculatePeriapsis(BaseBody body)
+    {
+        Vector3[] bodyPoints = futurePoints[bodies.IndexOf(body)];
+        float closestPointDistance = Mathf.Infinity;
+
+        for (int i = 0; i < bodyPoints.Length; i++)
+        {
+            Vector3 point = bodyPoints[i];
+            float distance = Vector3.Distance(point, bodyRelativeTo.transform.position);
+            if (distance < closestPointDistance)
+            {
+                closestPointDistance = distance;
+            }
+        }
+
+        body.periapsisDistance = closestPointDistance;
     }
 
     // This deletes the line data for the currente orbit in order to be able to toggle
@@ -680,6 +770,8 @@ public class Simulation : MonoBehaviour
         for (int i = 0; i < bodies.Count; i++)
         {
             bodies[i].UpdatePosition(timeStep);
+            CalculateApoapsis(bodies[i]);
+            CalculatePeriapsis(bodies[i]);
         }
 
         CalculateConics();

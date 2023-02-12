@@ -38,6 +38,8 @@ public class BaseBody : MonoBehaviour
     public float speedMagnitude;
     public float periapsisDistance;
     public float apoapsisDistance;
+    public Vector3 pointOfOrbitCentre;
+    public Vector3 furthestPointFromCentre;
 
     // Start is called before the first frame update
     void Start()

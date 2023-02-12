@@ -680,12 +680,12 @@ public class UIManager : MonoBehaviour
         // to not confuse the reader
         if(!bodyName.isFocused) bodyName.text = observedBody.bodyName;
 
-        if(!bodyMass.isFocused) bodyMass.text = ((double)observedBody.mass * massScaleFactor).ToString();
+        if(!bodyMass.isFocused) bodyMass.text = ((double)observedBody.mass * massScaleFactor).ToString("0.00e0").ToString();
 
         if(observedBody as CelestialBody)
         {
             CelestialBody celes = (CelestialBody)observedBody;
-            if(!radius.isFocused) radius.text = ((double)celes.radius * distanceScaleFactor).ToString();
+            if(!radius.isFocused) radius.text = ((double)celes.radius * distanceScaleFactor).ToString("0.00e0").ToString();
         }
         else
         {
@@ -693,23 +693,23 @@ public class UIManager : MonoBehaviour
         }
 
         if (!incrementInput.isFocused) incrementInput.text = (increment * distanceScaleFactor).ToString();
-        if (!velX.isFocused) velX.text = (observedBody.currentVelocity.x * distanceScaleFactor).ToString();
-        if (!velY.isFocused) velY.text = (observedBody.currentVelocity.y * distanceScaleFactor).ToString();
-        if (!velZ.isFocused) velZ.text = (observedBody.currentVelocity.z * distanceScaleFactor).ToString();
+        if (!velX.isFocused) velX.text = (observedBody.currentVelocity.x * distanceScaleFactor).ToString("0.00e0").ToString();
+        if (!velY.isFocused) velY.text = (observedBody.currentVelocity.y * distanceScaleFactor).ToString("0.00e0").ToString();
+        if (!velZ.isFocused) velZ.text = (observedBody.currentVelocity.z * distanceScaleFactor).ToString("0.00e0").ToString();
 
-        velMagnitude.text = (observedBody.speedMagnitude * distanceScaleFactor / 1000).ToString() + "km/s";
+        velMagnitude.text = (observedBody.speedMagnitude * distanceScaleFactor / 1000).ToString("0.00e0").ToString() + "km/s";
 
         UpdateSOI();
 
         // This allows us to draw the orbit properties window on the screen
         if (sim.areConicsDrawn)
         {
-            conicSOIText.text = "SOI: " + Math.Round(distanceScaleFactor * sim.FindSOIRadius(observedBody as CelestialBody) / 1000, 2) + " km";
+            conicSOIText.text = "SOI: " + (Math.Round(distanceScaleFactor * sim.FindSOIRadius(observedBody as CelestialBody) / 1000, 2)).ToString("0.00e0") + " km";
             orbitProperties.SetActive(true);
-            semiMajorAxisText.text = "a: " + Math.Round(sim.FindSemiMajorAxis(observedBody) * distanceScaleFactor / 1000, 2) + " km";
-            periodText.text = "T: " + Math.Round(sim.FindPeriodForBody(observedBody), 2) + " s";
-            perigeeText.text = "Per: " + Math.Round(observedBody.periapsisDistance * distanceScaleFactor / 1000, 2) + " km";
-            apogeeText.text = "Apo: " + Math.Round(observedBody.apoapsisDistance * distanceScaleFactor / 1000, 2)  + " km";
+            semiMajorAxisText.text = "a: " + (Math.Round(sim.FindSemiMajorAxis(observedBody) * distanceScaleFactor / 1000, 2)).ToString("0.00e0") + " km";
+            periodText.text = "T: " + Math.Round(sim.FindPeriodForBody(observedBody), 2).ToString("0.00e0") + " s";
+            perigeeText.text = "Per: " + Math.Round(observedBody.periapsisDistance * distanceScaleFactor / 1000, 2).ToString("0.00e0") + " km";
+            apogeeText.text = "Apo: " + Math.Round(observedBody.apoapsisDistance * distanceScaleFactor / 1000, 2).ToString("0.00e0") + " km";
 
             // Conic UI
 

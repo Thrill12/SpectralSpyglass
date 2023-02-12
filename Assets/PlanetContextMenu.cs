@@ -94,4 +94,14 @@ public class PlanetContextMenu : MonoBehaviour
         sim.Snapshot(sim.bodies[selectedBodyIndex] as CelestialBody);
         ContextMenuClick();
     }
+
+    /// <summary>
+    /// Function for removing a body from the system.
+    /// </summary>
+    public void RemoveBody()
+    {
+        AddRemoveBody aRBody = FindObjectOfType<AddRemoveBody>();
+        aRBody.RemoveBody(sim.bodies[selectedBodyIndex]);
+        ContextMenuClick();
+    }
 }

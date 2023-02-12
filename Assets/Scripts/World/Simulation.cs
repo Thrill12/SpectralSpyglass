@@ -106,20 +106,27 @@ public class Simulation : MonoBehaviour
         // but the user can relativise to any body they want to afterwards
         bodyRelativeTo = bodies.ToList().OrderByDescending(b => b.mass).First();
 
-        // We set the line renderers components to be accessed later on in the script
-        for (int i = 0; i < bodies.Count; i++)
-        {
-            lineRenderers.Add(bodies[i].GetComponent<LineRenderer>());
-        }
-
-        // We call all the actions set in that event so that it can be set up at least once
-        onChangePlanets.Invoke();
+        UpdatePlanets();
 
         // Setting up the properties for the debugging line renderer
         lineDebug.material = periApogeeLineMaterial;
         lineDebug.positionCount = 2;
         lineDebug.startWidth = 1f;
         lineDebug.endWidth = 1f;
+    }
+
+    public void UpdatePlanets()
+    {
+        // We call all the actions set in that event so that it can be set up at least once
+        onChangePlanets.Invoke();
+
+        lineRenderers.Clear();
+
+        // We set the line renderers components to be accessed later on in the script
+        for (int i = 0; i < bodies.Count; i++)
+        {
+            lineRenderers.Add(bodies[i].GetComponent<LineRenderer>());
+        }
     }
 
     /// <summary>
@@ -541,7 +548,7 @@ public class Simulation : MonoBehaviour
     /// <returns></returns>
     public float FindSemiMajorAxis(BaseBody body)
     {
-        if(futurePoints != null && futurePoints != null)
+        if(futurePoints != null && body != null)
         {
             UnityEngine.Debug.Log("Trying to access index " + bodies.IndexOf(body) + " when max index is " + futurePoints.Length);
 
